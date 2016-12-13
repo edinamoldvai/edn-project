@@ -37,7 +37,7 @@
 <div class="row">
   <div class="col-md-6 offset-md-3">
   <input type="submit"></input>
-  <a href="[% c.uri_for('save_new_team') %]">Cancel</a>
+  <a href="[% c.uri_for('add_new_team') %]">Cancel</a>
   </div>
   </div>
 </div>

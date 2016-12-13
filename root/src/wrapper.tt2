@@ -19,10 +19,12 @@
     <link href="https://getbootstrap.com/examples/signin/signin.css" rel="stylesheet">
 <!--     <link href="http://v4-alpha.getbootstrap.com/examples/cover/cover.css" rel="stylesheet"> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" />
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.js"></script>
     <script>
     $(document).ready(function () {
         $('.dropdown-toggle').dropdown();
@@ -46,7 +48,7 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
+          <li class="active"><a href="/">Home</a></li>
           <li><a href="#">About</a></li>
           <li><a href="#">Contact</a></li>
           <li class="dropdown">

@@ -21,7 +21,7 @@ Catalyst Controller.
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path('/') :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->stash(template => 'index.tt2');
@@ -32,7 +32,7 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub list :Path :Args(0) {
+sub list :Path('/') :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->stash(template => 'page.tt2');

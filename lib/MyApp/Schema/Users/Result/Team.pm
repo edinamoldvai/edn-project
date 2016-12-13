@@ -88,6 +88,11 @@ __PACKAGE__->table("Teams");
   data_type: 'text'
   is_nullable: 1
 
+=head2 technical_skills_needed
+
+  data_type: 'text'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -108,6 +113,8 @@ __PACKAGE__->add_columns(
   "manager_id",
   { data_type => "integer", is_nullable => 1 },
   "notes",
+  { data_type => "text", is_nullable => 1 },
+  "technical_skills_needed",
   { data_type => "text", is_nullable => 1 },
 );
 

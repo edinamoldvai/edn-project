@@ -2,6 +2,7 @@
 <div class="container">
 	<form action ="[% c.uri_for('update') %]" method ="Post">
     <div class="container-fluid col-xs-6">
+    <input type="hidden" name="id" id="id" value="[% id %]">
     <label for="team_name">Choose a name for your team</label>
     <input type="text" name="team_name" class="form-control input-sm" id="team_name" value="[% team_name %]" required><br>
     <label for="team_velocity" class="text-left" data-toggle="tooltip" data-placement="right" title="Velocity measures how much functionality a team delivers in a sprint.">Target velocity</label>
@@ -31,13 +32,20 @@
 </div>
 <div class="container col-xs-6">
 	<label for="team_notes">Notes</label><br>
-	<textarea rows="5" class="form-control input-sm" id="team_notes" name="team_notes" value="[% team_notes %]"></textarea>
+	<textarea rows="5" class="form-control input-sm" id="team_notes" name="team_notes">[% team_notes %]</textarea>
+    <label for="skills">Skills</label><br>
+    <input type="text" id="skills" name="skills" data-role="tagsinput">
+    <br>
+    <br>
+    <a href="[% c.uri_for('add_members') %]">Add members</a>
+    <br>
+    <br>
 </div>
 <div class="container">
 <div class="row">
   <div class="col-md-6 offset-md-3">
   <input type="submit"></input>
-  <a href="[% c.uri_for('save_new_team') %]">Cancel</a>
+  <a href="[% c.uri_for('view_teams_for_this_user') %]">Cancel</a>
   </div>
   </div>
 </div>
