@@ -46,7 +46,7 @@ sub add :Local :Args(0) {
     $c->stash(template => 'employee/add.tt2');
 }
 
-sub save_new_employee :Local :Args(0) {
+sub save_new_employee :Local :OnError('add') {
     my ( $self, $c ) = @_;
 
     foreach my $param (values($c->req->params)) {
@@ -74,7 +74,7 @@ sub save_new_employee :Local :Args(0) {
 	    			});
     			} or do {
     				$c->stash->{error_msg} = "There was an error while adding the new skill to the database, please try again later.";
-    				$c->forward('list');
+    				$c->go('list');
     			}
     	}
     }
@@ -85,15 +85,15 @@ sub save_new_employee :Local :Args(0) {
 	    	last_name => $params->{last_name},
 	    	department => $params->{department},
 	    	project_id => undef,
-	    	skills => @found_skills,
+	    	technical_skills => @found_skills,
 	    	});
     	} or do {
     		$c->stash->{error_msg} = "There was an error while saving the new employee, please try again later.";
-    		$c->forward('list');
+    		$c->go('add');
     	};
     
-	$c->stash->{status_msg} = "The team is saved successfully";
-    $c->forward('list');
+	$c->stash->{status_msg} = "The employee is saved successfully";
+    $c->go('list');
 }
 
 sub edit :Local {
@@ -126,7 +126,7 @@ sub edit :Local {
 
 }
 
-sub update :Local {
+sub update :Local :OnError('edit') {
 	my ($self, $c) = @_;
 
 	foreach my $param (values($c->req->params)) {
@@ -143,13 +143,16 @@ sub update :Local {
     		first_name => $params->{first_name},
     		last_name => $params->{last_name},
     		department => $params->{department},
-    		project_id => undef,
-    		skills => $params->{technical_skills}
+    		project_id => 0,
+    		technical_skills => $params->{skills},
     		});
     } or do {
     	$c->stash->{error_msg} = "There was an error while updating the employee, please try again later.";
-    	$c->forward('list');
-    }
+    	$c->go('edit');
+    };
+
+    $c->stash->{error_msg} = "The employee has been updated.";
+    $c->go('list');
 }
 
 sub delete :Local :Args(1) {
@@ -159,7 +162,7 @@ sub delete :Local :Args(1) {
     $employee_to_delete->delete if $employee_to_delete;
 
     $c->stash->{status_msg} = "Employee deleted.";
-    $c->forward('list');
+    $c->go('list');
 }
 
 sub trim {

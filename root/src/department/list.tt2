@@ -1,0 +1,8 @@
+<br>
+<div class="container">
+	<div class="list-group">
+	[% FOREACH key IN departments.keys.sort -%]
+		<a href="[% c.uri_for(c.controller.action_for('view_employees_in_department'), key) %]" name="department" id="department" class="list-group-item">[% departments.$key %]</a>
+	[% END -%]
+	</div>
+</div>

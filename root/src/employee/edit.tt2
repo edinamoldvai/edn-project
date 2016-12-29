@@ -1,7 +1,8 @@
 <br>
 <div class="container">
-	<form action ="[% c.uri_for('save_new_employee') %]" method ="Post">
+	<form action ="[% c.uri_for('update') %]" method ="Post">
 	<div class="container-fluid col-xs-6">
+		<input type="hidden" name="id" id="id" value="[% id %]">
 		<label for="first_name">First name</label>
 	    <input type="text" name="first_name" class="form-control input-sm" id="first_name" value="[% first_name %]" required><br>
 	    <label for="last_name">Last name</label>
