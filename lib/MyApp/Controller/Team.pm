@@ -79,6 +79,25 @@ sub save_new_team :Local :Args(0) {
 	    $planning_time = $planning_time.",".$planning_day;
 	    $retrospective_time = $retrospective_time.",".$retrospective_day;
 
+	    my @words = split /,/, $skills;
+
+	    my %skills = map {
+	        $_->id => $_->technical_skill,
+    	} $c->model('DB::TechnicalSkill')->all();
+
+	    my @found_skills;
+	    my @not_found;
+	    my @skills_string = values %skills;
+	    my $informative_message;
+	   	foreach my $skill (@words) {
+	    	if ( grep $_ eq $skill, @skills_string ) {
+	    		push @found_skills, $skill;
+	    	} else {
+	    		push @not_found, $skill;
+	    		$informative_message = "The following skills are not found in the system: ".join(", ",@not_found);
+	    	}
+	    }
+
 	    my $new_team = $c->model('DB::Team')->create({
 	    	name => $name,
 	    	target_velocity => $velocity,
@@ -88,7 +107,7 @@ sub save_new_team :Local :Args(0) {
 	    	sprint_retrospective => $retrospective_time,
 	    	manager_id => $c->user->user_id,
 	    	notes => $notes,
-	    	technical_skills_needed => $skills,
+	    	technical_skills_needed => \@found_skills,
 	    	});
 
 	    $c->stash->{status_msg} = "The team is saved successfully";
@@ -101,7 +120,7 @@ sub delete :Local :Args(1) {
     my ($self, $c, $id) = @_;
 
     my $team_to_delete = $c->model('DB::Team')->find($id);
-    $team_to_delete->delete;
+    $team_to_delete->delete if $team_to_delete;
 
     $c->stash->{status_msg} = "Team deleted.";
     $c->go('view_teams_for_this_user');
@@ -199,7 +218,7 @@ sub update :Local {
 	    	or $planning_day =~ m/^((Monday)|(Tuesday)|(Wednesday)|(Thursday)|(Friday))$/
 	    	or $retrospective_day =~ m/^((Monday)|(Tuesday)|(Wednesday)|(Thursday)|(Friday))$/) {
 		    	$c->stash({
-	    			error_msg => "One of the date/time validations don't pass."
+	    			error_msg => "One of the date/time validations doesn't pass."
 	    			});
 	    		$c->go("edit");
 	    };    
@@ -207,34 +226,25 @@ sub update :Local {
 	    $planning_time = $planning_time.",".$planning_day;
 	    $retrospective_time = $retrospective_time.",".$retrospective_day;
 	    
-
 		my @words = split /,/, $skills;
-		warn Data::Dumper::Dumper(@words);
 
-	    my @existing_skills = $c->model('DB::TechnicalSkill')->search(
-	    {
-	    	technical_skill => { in => \@words },
-	    },
-	    {
-	    	result_class => "DBIx::Class::ResultClass::HashRefInflator"
-	    })->all();
-	    warn Data::Dumper::Dumper(@existing_skills);
-	    my @skill_ids;
+	    my %skills = map {
+	        $_->id => $_->technical_skill,
+    	} $c->model('DB::TechnicalSkill')->all();
+
+	    my @found_skills;
 	    my @not_found;
-	    foreach my $skill (@existing_skills) {
-	    	if ( grep $_ eq $skill->{technical_skill}, @words ) {
-	    		push @skill_ids, $skill->{id};
-	    		warn Data::Dumper::Dumper("found : ".$skill->{technical_skill});
+	    my @skills_string = values %skills;
+	    my $informative_message;
+	   	foreach my $skill (@words) {
+	    	if ( grep $_ eq $skill, @skills_string ) {
+	    		push @found_skills, $skill;
 	    	} else {
-	    		warn Data::Dumper::Dumper($_);
-	    		# @not_found = (grep $_ ne $skill->{technical_skill}, @words);
-	    		# $c->stash->{informative_message} = "The sistem found "
-
+	    		push @not_found, $skill;
+	    		$informative_message = "The following skills are not found in the system: ".join(", ",@not_found);
 	    	}
 	    }
 
-	    warn Data::Dumper::Dumper("NOT found : ");
-	    warn Data::Dumper::Dumper(@not_found);
 	    $current_item->update({
 	    	name => $name,
 	    	target_velocity => $velocity,
@@ -243,10 +253,10 @@ sub update :Local {
 	    	sprint_planning => $planning_time,
 	    	sprint_retrospective => $retrospective_time,
 	    	notes => $notes,
-	    	technical_skills_needed => \@skill_ids,
+	    	technical_skills_needed => @found_skills,
 	    	});
 
-	    $c->stash->{status_msg} = "The team is updated successfully";
+	    $c->stash->{status_msg} = "The team is updated successfully. ".$informative_message;
 	    $c->go("view_teams_for_this_user");
 	}
 

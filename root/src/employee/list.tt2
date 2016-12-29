@@ -1,0 +1,12 @@
+<br>
+<div class="container">
+	<b><a href="add">Add employee</a></b>
+	<br>
+	<br>
+	<div class="list-group">
+	[% FOREACH key IN data.keys.sort -%]
+		<a href="[% c.uri_for(c.controller.action_for('edit'), key) %]" name="employee" id="employee" class="list-group-item">[% data.$key %]</a>
+		<a href="[% c.uri_for(c.controller.action_for('delete'), key) %]">Delete</a>
+	[% END -%]
+	</div>
+</div>

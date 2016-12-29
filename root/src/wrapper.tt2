@@ -55,8 +55,8 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   <li><a href="team/add_new_team">Add a new team</a></li>
-                  <li><a href="team/view_teams_for_this_user">View all teams</a></li>
-                  <li><a href="#">Something else here</a></li>
+                  <li><a href="team/view_teams_for_this_user">View teams</a></li>
+                  <li><a href="employee/list">View employees</a></li>
                   <li role="separator" class="divider"></li>
                   <li class="dropdown-header">Nav header</li>
                   <li><a href="#">Separated link</a></li>

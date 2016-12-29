@@ -1,0 +1,33 @@
+<br>
+<div class="container">
+	<form action ="[% c.uri_for('save_new_employee') %]" method ="Post">
+	<div class="container-fluid col-xs-6">
+		<label for="first_name">First name</label>
+	    <input type="text" name="first_name" class="form-control input-sm" id="first_name" value="[% first_name %]" required><br>
+	    <label for="last_name">Last name</label>
+	    <input type="text" name="last_name" class="form-control input-sm" id="last_name" value="[% last_name %]" required><br>
+	    <label for="department">Select department</label>
+			<select class="form-control" id="department" name="department" required>
+			    <option>Perl</option>
+			    <option>QA</option>
+			    <option>Java</option>
+			    <option>.NET</option>
+			    <option>JavaScript</option>
+			</select>
+		<br>
+		<label for="project">Select project</label>
+			<select class="form-control" id="project" name="project" required>
+			    <option>Fan</option>
+			    <option>PayPal</option>
+			    <option>eMag</option>
+			</select>
+		<br>
+		<label for="skills">Skills</label><br>
+	    <input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]">
+	    <br>
+		<br>
+		<input type="submit"></input>
+		<a href="[% c.uri_for('list') %]">Cancel</a>
+	</div>
+</div>
+</form>
