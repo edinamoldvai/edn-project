@@ -100,7 +100,7 @@ Related object: L<MyApp::Schema::Users::Result::Employee>
 __PACKAGE__->has_many(
   "employees",
   "MyApp::Schema::Users::Result::Employee",
-  { "foreign.department" => "self.dname" },
+  { "foreign.department" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 

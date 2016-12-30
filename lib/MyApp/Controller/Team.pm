@@ -232,13 +232,13 @@ sub update :Local {
 	        $_->id => $_->technical_skill,
     	} $c->model('DB::TechnicalSkill')->all();
 
-	    my @found_skills;
+	    my $found_skills;
 	    my @not_found;
 	    my @skills_string = values %skills;
 	    my $informative_message;
 	   	foreach my $skill (@words) {
 	    	if ( grep $_ eq $skill, @skills_string ) {
-	    		push @found_skills, $skill;
+	    		push @{$found_skills}, $skill;
 	    	} else {
 	    		push @not_found, $skill;
 	    		$informative_message = "The following skills are not found in the system: ".join(", ",@not_found);
@@ -253,11 +253,67 @@ sub update :Local {
 	    	sprint_planning => $planning_time,
 	    	sprint_retrospective => $retrospective_time,
 	    	notes => $notes,
-	    	technical_skills_needed => @found_skills,
+	    	technical_skills_needed => $found_skills,
 	    	});
 
 	    $c->stash->{status_msg} = "The team is updated successfully. ".$informative_message;
 	    $c->go("view_teams_for_this_user");
+	}
+
+}
+
+sub list :Local :Args(0) {
+	my ($self, $c) = @_;
+
+	my %team_list = map {
+		$_->id => $_->name,
+		} $c->model('DB::Team')->all();
+
+	$c->stash({
+		teams => \%team_list,
+		template => "team/list.tt2",
+		});
+}
+
+sub view_employees_in_team :Local {
+	my ($self, $c, $id) = @_;
+
+	my $team = $c->model('DB::Team')->find($id);
+
+	if ($team) {
+
+		my @employees_in_team = $c->model('DB::Team')->search(
+		{
+			name => $team->name
+		},
+		{
+			columns => [ qw(
+                id
+                name
+                employees.id
+                employees.first_name
+                employees.last_name
+            )],
+			join     => 'employees',
+			result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+        })->all();
+
+		my $employees;
+		foreach my $entity (@employees_in_team) {
+			
+			$employees->{$entity->{employees}->{id}} = $entity->{employees}->{first_name}." ".$entity->{employees}->{last_name}
+		}
+
+		$c->stash({
+			employees => $employees,
+			template => "team/group.tt2"
+			});
+
+	} else {
+		$c->stash({
+			error_msg => "This team does not exist.",
+			template => "team/list.tt2"
+			});
 	}
 
 }

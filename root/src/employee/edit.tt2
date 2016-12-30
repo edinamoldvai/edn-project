@@ -9,18 +9,16 @@
 	    <input type="text" name="last_name" class="form-control input-sm" id="last_name" value="[% last_name %]" required><br>
 	    <label for="department">Select department</label>
 			<select class="form-control" id="department" name="department" required>
-			    <option>Perl</option>
-			    <option>QA</option>
-			    <option>Java</option>
-			    <option>.NET</option>
-			    <option>JavaScript</option>
+			[% FOREACH key IN departments.keys.sort -%]
+				<option>[% departments.$key %]</option>
+			[% END -%]
 			</select>
 		<br>
 		<label for="project">Select project</label>
 			<select class="form-control" id="project" name="project" required>
-			    <option>Fan</option>
-			    <option>PayPal</option>
-			    <option>eMag</option>
+			[% FOREACH key IN projects.keys.sort -%]
+				<option>[% projects.$key %]</option>
+			[% END -%]
 			</select>
 		<br>
 		<label for="skills">Skills</label><br>
@@ -32,3 +30,7 @@
 	</div>
 </div>
 </form>
+<script>
+$( "#department" ).val( "[% department %]" );
+$( "#project" ).val( "[% project %]" );
+</script>

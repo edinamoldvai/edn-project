@@ -124,7 +124,14 @@ Related object: L<MyApp::Schema::Users::Result::Department>
 __PACKAGE__->belongs_to(
   "department",
   "MyApp::Schema::Users::Result::Department",
-  { dname => "department" },
+  { id => "department" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
+__PACKAGE__->belongs_to(
+  "team",
+  "MyApp::Schema::Users::Result::Team",
+  { id => "project_id" },
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 

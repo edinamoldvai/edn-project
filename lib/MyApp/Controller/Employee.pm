@@ -12,6 +12,15 @@ MyApp::Controller::Employee - Catalyst Controller
 
 Catalyst Controller.
 
+=head1 GLOBAL VARIABLES
+
+=cut
+
+my %departments;
+my %projects;
+my %reverse_departments;
+my %reverse_projects;
+
 =head1 METHODS
 
 =cut
@@ -21,10 +30,21 @@ Catalyst Controller.
 
 =cut
 
-sub index :Path :Args(0) {
+sub auto :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->response->body('Matched MyApp::Controller::Employee in Employee.');
+    # Select all departments and projects because all operations need them and we also neew to maintain the dropdownlist on the ui side
+    %departments = map {
+            $_->id => $_->dname,
+        } $c->model('DB::Department')->all();
+
+    %projects = map {
+            $_->id => $_->name,
+        } $c->model('DB::Team')->all();
+
+    %reverse_departments = reverse %departments;
+    %reverse_projects = reverse %projects;
+
 }
 
 sub list :Local :Args(0) {
@@ -43,7 +63,11 @@ sub list :Local :Args(0) {
 sub add :Local :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash(template => 'employee/add.tt2');
+    $c->stash({
+        departments => \%departments,
+        projects => \%projects,
+        template => 'employee/add.tt2'
+        });
 }
 
 sub save_new_employee :Local :OnError('add') {
@@ -53,7 +77,6 @@ sub save_new_employee :Local :OnError('add') {
     	$param =~ /^\Q$param\E/;
     	$param = $self->trim($param);
     }
-
     my $params = $c->req->params;
 
     my @words = split /,/, $params->{skills};
@@ -83,8 +106,8 @@ sub save_new_employee :Local :OnError('add') {
     	my $new_employee = $c->model('DB::Employee')->create({
 	    	first_name => $params->{first_name},
 	    	last_name => $params->{last_name},
-	    	department => $params->{department},
-	    	project_id => undef,
+	    	department => $reverse_departments{$params->{department}},
+	    	project_id => $reverse_projects{$params->{project}},
 	    	technical_skills => @found_skills,
 	    	});
     	} or do {
@@ -94,6 +117,7 @@ sub save_new_employee :Local :OnError('add') {
     
 	$c->stash->{status_msg} = "The employee is saved successfully";
     $c->go('list');
+
 }
 
 sub edit :Local {
@@ -103,7 +127,6 @@ sub edit :Local {
     	$param =~ /^\Q$param\E/;
     	$param = $self->trim($param);
     }
-
     my $params = $c->req->params;
 
 	my $employee = $c->model('DB::Employee')->find($id);
@@ -114,9 +137,11 @@ sub edit :Local {
 			id => $employee->id,
 			first_name => $employee->first_name,
 			last_name => $employee->last_name,
-			department => $employee->department,
-			project_id => $employee->project_id,
-			skills => $employee->technical_skills
+			department => $departments{$employee->department->id},
+			project => $projects{$employee->project_id},
+			skills => $employee->technical_skills,
+            departments => \%departments,
+            projects => \%projects,
 			});
 
 	} else {
@@ -133,7 +158,6 @@ sub update :Local :OnError('edit') {
     	$param =~ /^\Q$param\E/;
     	$param = $self->trim($param);
     }
-
     my $params = $c->req->params;
 
     my $employee = $c->model('DB::Employee')->find($params->{id});
@@ -142,8 +166,8 @@ sub update :Local :OnError('edit') {
     	$employee->update({
     		first_name => $params->{first_name},
     		last_name => $params->{last_name},
-    		department => $params->{department},
-    		project_id => 0,
+    		department => $reverse_departments{$params->{department}},
+    		project_id => $reverse_projects{$params->{project}},
     		technical_skills => $params->{skills},
     		});
     } or do {
@@ -153,6 +177,7 @@ sub update :Local :OnError('edit') {
 
     $c->stash->{error_msg} = "The employee has been updated.";
     $c->go('list');
+
 }
 
 sub delete :Local :Args(1) {
@@ -163,6 +188,7 @@ sub delete :Local :Args(1) {
 
     $c->stash->{status_msg} = "Employee deleted.";
     $c->go('list');
+
 }
 
 sub trim {
@@ -170,6 +196,7 @@ sub trim {
 	$string =~ s/^\s+|\s+$//g;
 
 	return $string
+
 };
 =encoding utf8
 
