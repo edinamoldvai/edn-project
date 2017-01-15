@@ -53,11 +53,13 @@
           <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Employees <span class="caret"></span></a>
                 <ul class="dropdown-menu">
+                  <li><a href="/employee/add">Add a new employee</a></li>
                   <li><a href="/employee/list">All employees</a></li>
                   <li role="separator" class="divider"></li>
                   <li class="dropdown-header">Group by</li>
                   <li><a href="/department/list">Department</a></li>
                   <li><a href="/team/list">Project</a></li>
+                  <li><a href="/skill/list">Technical Skills</a></li>
                 </ul>
           </li>
           <li class="dropdown">

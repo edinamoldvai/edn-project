@@ -78,6 +78,17 @@ __PACKAGE__->table("employees");
   is_nullable: 1
   size: 11
 
+=head2 last_updated
+
+  data_type: 'timestamp'
+  is_nullable: 0
+
+=head2 updated_by
+
+  data_type: 'int'
+  is_nullable: 0,
+  size: 11
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -95,6 +106,10 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "project_id",
   { data_type => "integer", is_nullable => 1, size => 11 },
+  "last_updated",
+  { data_type => "timestamp", is_nullable => 0 },
+  "updated_by",
+  { data_type => "integer", is_nullable => 0, size => 11 },
 );
 
 =head1 PRIMARY KEY
@@ -128,11 +143,34 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
+=head2 employee_skill
+
+Type: has_many
+
+Related object: L<MyApp::Schema::Result::EmployeeSkill>
+
+=cut
+
 __PACKAGE__->belongs_to(
   "team",
   "MyApp::Schema::Users::Result::Team",
   { id => "project_id" },
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
+=head2 employee_skill
+
+Type: has_many
+
+Related object: L<MyApp::Schema::Result::EmployeeSkill>
+
+=cut
+
+__PACKAGE__->has_many(
+  "employee_skill",
+  "MyApp::Schema::Users::Result::EmployeeSkill",
+  { "foreign.id" => "self.id_employee" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

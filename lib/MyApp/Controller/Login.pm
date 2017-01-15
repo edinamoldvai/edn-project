@@ -45,8 +45,7 @@ sub index :Path :Args(0) {
     # Get the username and password from form
     my $username = $c->request->params->{email};
     my $password = $c->request->params->{password};
-    warn Data::Dumper::Dumper($username);
-    warn Data::Dumper::Dumper($password);
+
     # If the username and password values were found in form
     if ($username && $password) {
         # Attempt to log the user in

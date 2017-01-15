@@ -1,6 +1,6 @@
 <br>
 <div class="container">
-	<b><a href="add">Add employee</a></b>
+	<b><a href="/employee/add">Add employee</a></b>
 	<br>
 	<br>
 	<div class="list-group">

@@ -2,6 +2,8 @@ package MyApp::Controller::Employee;
 use Moose;
 use namespace::autoclean;
 
+use DateTime; 
+
 BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
@@ -18,15 +20,15 @@ Catalyst Controller.
 
 my %departments;
 my %projects;
+my %skills;
 my %reverse_departments;
 my %reverse_projects;
-
+my %reverse_skills;
 =head1 METHODS
 
 =cut
 
-
-=head2 index
+=head2 auto
 
 =cut
 
@@ -42,8 +44,13 @@ sub auto :Path :Args(0) {
             $_->id => $_->name,
         } $c->model('DB::Team')->all();
 
+    %skills = map {
+            $_->id => $_->technical_skill,
+        } $c->model('DB::TechnicalSkill')->all();
+
     %reverse_departments = reverse %departments;
     %reverse_projects = reverse %projects;
+    %reverse_skills = reverse %skills;
 
 }
 
@@ -73,34 +80,30 @@ sub add :Local :Args(0) {
 sub save_new_employee :Local :OnError('add') {
     my ( $self, $c ) = @_;
 
-    foreach my $param (values($c->req->params)) {
-    	$param =~ /^\Q$param\E/;
-    	$param = $self->trim($param);
-    }
     my $params = $c->req->params;
 
     my @words = split /,/, $params->{skills};
 
-    my %skills = map {
-        $_->id => $_->technical_skill,
-	} $c->model('DB::TechnicalSkill')->all();
-    my @skills_string = values %skills;
-
     my @found_skills;
+    my $new_skill;
    	foreach my $skill (@words) {
-    	if ( grep $_ eq $skill, @skills_string ) {
-    		push @found_skills, $skill;
+    	if ($reverse_skills{$skill}) {
+    		push @found_skills, $reverse_skills{$skill};
     	} else {
     		eval {
-    			my $new_skill = $c->model('DB::TechnicalSkill')->create({
+    			$new_skill = $c->model('DB::TechnicalSkill')->create({
 	    			technical_skill => $skill
 	    			});
+                push @found_skills, $new_skill->id;
     			} or do {
     				$c->stash->{error_msg} = "There was an error while adding the new skill to the database, please try again later.";
-    				$c->go('list');
+    				$c->response->redirect('/employee/list');
+                    $c->detach();
     			}
     	}
     }
+
+    my $date = getTime();
 
     eval {
     	my $new_employee = $c->model('DB::Employee')->create({
@@ -108,28 +111,36 @@ sub save_new_employee :Local :OnError('add') {
 	    	last_name => $params->{last_name},
 	    	department => $reverse_departments{$params->{department}},
 	    	project_id => $reverse_projects{$params->{project}},
-	    	technical_skills => @found_skills,
+            hire_date => $date,
+            updated_by => $c->user->user_id
 	    	});
+
+        foreach my $skill (@found_skills) {
+                my $relation = $c->model('DB::EmployeeSkill')->create({
+                    id_employee => $new_employee->id,
+                    id_skill => $skill
+                    });
+            }
     	} or do {
     		$c->stash->{error_msg} = "There was an error while saving the new employee, please try again later.";
-    		$c->go('add');
+    		$c->response->redirect('/employee/add');
+            $c->detach();
     	};
     
-	$c->stash->{status_msg} = "The employee is saved successfully";
-    $c->go('list');
+	$c->flash( success => "The employee is saved successfully" );
+    $c->response->redirect('/employee/list');
+    $c->detach();
 
 }
 
 sub edit :Local {
 	my ($self, $c, $id) = @_;
 
-	foreach my $param (values($c->req->params)) {
-    	$param =~ /^\Q$param\E/;
-    	$param = $self->trim($param);
-    }
     my $params = $c->req->params;
 
 	my $employee = $c->model('DB::Employee')->find($id);
+    my %skills_for_employee = $self->get_skill($c, $id);
+    my $scal = join(", ", map { "$skills_for_employee{$_}" } keys %skills_for_employee);
 
 	if ($employee) {
 		
@@ -139,7 +150,7 @@ sub edit :Local {
 			last_name => $employee->last_name,
 			department => $departments{$employee->department->id},
 			project => $projects{$employee->project_id},
-			skills => $employee->technical_skills,
+			skills => $scal,
             departments => \%departments,
             projects => \%projects,
 			});
@@ -154,13 +165,27 @@ sub edit :Local {
 sub update :Local :OnError('edit') {
 	my ($self, $c) = @_;
 
-	foreach my $param (values($c->req->params)) {
-    	$param =~ /^\Q$param\E/;
-    	$param = $self->trim($param);
-    }
     my $params = $c->req->params;
 
     my $employee = $c->model('DB::Employee')->find($params->{id});
+
+    my @words = split /,/, $params->{skills};
+    my @found_skills;
+    foreach my $skill (@words) {
+        if ($reverse_skills{$skill}) {
+            push @found_skills, $reverse_skills{$skill};
+        } else {
+            eval {
+                my $new_skill = $c->model('DB::TechnicalSkill')->create({
+                    technical_skill => $skill
+                    });
+                push @found_skills, $new_skill->id;
+                } or do {
+                    $c->stash->{error_msg} = "There was an error while adding the new skill to the database, please try again later.";
+                    $c->go('list');
+                }
+        }
+    }
 
     eval {
     	$employee->update({
@@ -168,8 +193,13 @@ sub update :Local :OnError('edit') {
     		last_name => $params->{last_name},
     		department => $reverse_departments{$params->{department}},
     		project_id => $reverse_projects{$params->{project}},
-    		technical_skills => $params->{skills},
     		});
+        foreach my $skill (@found_skills) {
+                my $relation = $c->model('DB::EmployeeSkill')->update_or_create({
+                    id_employee => $employee->id,
+                    id_skill => $skill
+                    });
+            };
     } or do {
     	$c->stash->{error_msg} = "There was an error while updating the employee, please try again later.";
     	$c->go('edit');
@@ -191,13 +221,43 @@ sub delete :Local :Args(1) {
 
 }
 
+sub get_skill :Private {
+    my ( $self, $c, $id ) = @_;
+
+    my @skills = $c->model('DB::EmployeeSkill')->search(
+        {
+            'me.id_employee' => $id,
+        },
+        {
+            join    => ['id_skill'],
+            columns => [ { id => 'id_skill.id' }, { name => 'id_skill.technical_skill' } ],
+            result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+        },
+    );
+    my %skills = map {
+            $_->{id} => $_->{name},
+        } @skills;
+
+    return %skills;
+}
+
+
 sub trim {
 	my ($self, $string) = @_;
 	$string =~ s/^\s+|\s+$//g;
 
 	return $string
 
-};
+}
+
+sub getTime {
+
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+    my $nice_timestamp = sprintf ( "%04d-%02d-%02d",
+                                   $year+1900,$mon+1,$mday);
+    return $nice_timestamp;
+}
+
 =encoding utf8
 
 =head1 AUTHOR
