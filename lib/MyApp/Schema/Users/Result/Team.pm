@@ -88,11 +88,6 @@ __PACKAGE__->table("Teams");
   data_type: 'text'
   is_nullable: 1
 
-=head2 technical_skills_needed
-
-  data_type: 'text'
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -113,8 +108,6 @@ __PACKAGE__->add_columns(
   "manager_id",
   { data_type => "integer", is_nullable => 1 },
   "notes",
-  { data_type => "text", is_nullable => 1 },
-  "technical_skills_needed",
   { data_type => "text", is_nullable => 1 },
 );
 
@@ -138,6 +131,21 @@ __PACKAGE__->has_many(
   "employees",
   "MyApp::Schema::Users::Result::Employee",
   { "foreign.project_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 project_skill
+
+Type: has_many
+
+Related object: L<MyApp::Schema::Result::ProjectSkill>
+
+=cut
+
+__PACKAGE__->has_many(
+  "project_skill",
+  "MyApp::Schema::Users::Result::ProjectSkill",
+  { "foreign.id" => "self.id_project" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 

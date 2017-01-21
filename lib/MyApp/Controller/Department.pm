@@ -66,7 +66,7 @@ sub view_employees_in_department :Local {
 		my $employees;
 		foreach my $entity (@employees_in_department) {
 			
-			$employees->{$entity->{employees}->{id}} = $entity->{employees}->{first_name}." ".$entity->{employees}->{last_name}
+			$employees->{$entity->{employees}->{id}} = "$entity->{employees}->{first_name} $entity->{employees}->{last_name}"
 		}
 
 		$c->stash({

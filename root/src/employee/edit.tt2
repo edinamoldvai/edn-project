@@ -14,8 +14,15 @@
 			[% END -%]
 			</select>
 		<br>
+		<label for="roles">Select role</label>
+			<select class="form-control" id="roles" name="roles" required>
+			[% FOREACH key IN roles.keys.sort -%]
+				<option>[% roles.$key %]</option>
+			[% END -%]
+			</select>
+		<br>
 		<label for="project">Select project</label>
-			<select class="form-control" id="project" name="project" required>
+			<select class="form-control" id="project" name="project">
 			[% FOREACH key IN projects.keys.sort -%]
 				<option>[% projects.$key %]</option>
 			[% END -%]
@@ -33,4 +40,5 @@
 <script>
 $( "#department" ).val( "[% department %]" );
 $( "#project" ).val( "[% project %]" );
+$( "#roles" ).val( "[% role %]" );
 </script>

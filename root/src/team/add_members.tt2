@@ -1,4 +1,16 @@
+<br>
 <div class="container">
-	Add members for your team
-	
+	<b>Add members to your team :</b>
+	<br>
+	<br>
+	<div class="list-group">
+	<input type="hidden" name="id" id="id" value="[% id %]">
+	<ul>
+	[% FOREACH key IN employees.keys.sort -%]
+		<li name="employee" id="employee" class="list-group-item">[% employees.$key.name %]</li>
+		<li>[% employees.$key.skills %]</li>
+		<a href="[% c.uri_for(c.controller.action_for('add_to_team'), id, key) %]">Add to team</a>
+	[% END -%]
+	</ul>
+	</div>
 </div>

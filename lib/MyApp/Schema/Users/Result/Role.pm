@@ -1,12 +1,12 @@
 use utf8;
-package MyApp::Schema::Users::Result::TechnicalSkill;
+package MyApp::Schema::Users::Result::Role;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-MyApp::Schema::Users::Result::TechnicalSkill
+MyApp::Schema::Users::Result::Role
 
 =cut
 
@@ -30,11 +30,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<Users>
+=head1 TABLE: C<roles>
 
 =cut
 
-__PACKAGE__->table("technical_skills");
+__PACKAGE__->table("roles");
 
 =head1 ACCESSORS
 
@@ -44,7 +44,7 @@ __PACKAGE__->table("technical_skills");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 technical_skill
+=head2 role
 
   data_type: 'varchar'
   is_nullable: 0
@@ -55,7 +55,7 @@ __PACKAGE__->table("technical_skills");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "technical_skill",
+  "role",
   { data_type => "varchar", is_nullable => 0, size => 45 }
 );
 
@@ -83,41 +83,24 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("technical_skill", ["technical_skill"]);
+__PACKAGE__->add_unique_constraint("role", ["role"]);
 
 
 # Created by DBIx::Class::Schema::Loader v0.07039 @ 2016-11-12 14:19:20
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kfHKb1o1wvgpgMUDEB11oQ
 
-=head1 RELATIONS
-
-=head2 employee_skill
+=head2 employees
 
 Type: has_many
 
-Related object: L<MyApp::Users::Schema::EmployeeSkill>
+Related object: L<MyApp::Schema::Users::Result::Employee>
 
 =cut
 
 __PACKAGE__->has_many(
-  "employee_skill",
-  "MyApp::Schema::Users::Result::EmployeeSkill",
-  { "foreign.id" => "self.id_skill" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 project_skill
-
-Type: has_many
-
-Related object: L<MyApp::Users::Schema::ProjectSkill>
-
-=cut
-
-__PACKAGE__->has_many(
-  "project_skill",
-  "MyApp::Schema::Users::Result::ProjectSkill",
-  { "foreign.id" => "self.id_skill" },
+  "employees",
+  "MyApp::Schema::Users::Result::Employee",
+  { "foreign.role_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 

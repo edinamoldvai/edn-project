@@ -37,7 +37,7 @@
     <input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]">
     <br>
     <br>
-    <a href="[% c.uri_for('add_members') %]">Add members</a>
+    <a href="[% c.uri_for(('/team/add_members'), id) %]">Add members</a>
     <br>
     <br>
 </div>
@@ -67,6 +67,8 @@
         showInputs: false,
         minuteStep: 5
     });
+    $("#retrospective_day").val("[% retrospective_day %]");
+    $("#planning_day").val("[% planning_day %]");
 </script>
 <script>
 	$(document).ready(function(){

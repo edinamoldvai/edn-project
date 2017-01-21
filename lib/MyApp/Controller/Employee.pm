@@ -21,9 +21,11 @@ Catalyst Controller.
 my %departments;
 my %projects;
 my %skills;
+my %roles;
 my %reverse_departments;
 my %reverse_projects;
 my %reverse_skills;
+my %reverse_roles;
 =head1 METHODS
 
 =cut
@@ -48,14 +50,23 @@ sub auto :Path :Args(0) {
             $_->id => $_->technical_skill,
         } $c->model('DB::TechnicalSkill')->all();
 
+    %roles = map {
+            $_->id => $_->role,
+        } $c->model('DB::Role')->all();
+
     %reverse_departments = reverse %departments;
     %reverse_projects = reverse %projects;
     %reverse_skills = reverse %skills;
+    %reverse_roles = reverse %roles;
+
+    warn Data::Dumper::Dumper(\%roles);
 
 }
 
 sub list :Local :Args(0) {
 	my ($self, $c) = @_;
+
+    $c->load_status_msgs;
 
 	my %employees = map {
 	        $_->id => $_->first_name." ".$_->last_name,
@@ -67,12 +78,13 @@ sub list :Local :Args(0) {
 		});
 }
 
-sub add :Local :Args(0) {
+sub add :Local {
     my ( $self, $c ) = @_;
 
     $c->stash({
         departments => \%departments,
         projects => \%projects,
+        roles => \%roles,
         template => 'employee/add.tt2'
         });
 }
@@ -87,6 +99,7 @@ sub save_new_employee :Local :OnError('add') {
     my @found_skills;
     my $new_skill;
    	foreach my $skill (@words) {
+        $skill =~ s/^\s+|\s+$//g;
     	if ($reverse_skills{$skill}) {
     		push @found_skills, $reverse_skills{$skill};
     	} else {
@@ -96,9 +109,8 @@ sub save_new_employee :Local :OnError('add') {
 	    			});
                 push @found_skills, $new_skill->id;
     			} or do {
-    				$c->stash->{error_msg} = "There was an error while adding the new skill to the database, please try again later.";
-    				$c->response->redirect('/employee/list');
-                    $c->detach();
+    				$c->response->redirect($c->uri_for('list',
+                        {mid => $c->set_status_msg("There was an error while adding the new skill to the database, please try again later.")}));
     			}
     	}
     }
@@ -112,7 +124,8 @@ sub save_new_employee :Local :OnError('add') {
 	    	department => $reverse_departments{$params->{department}},
 	    	project_id => $reverse_projects{$params->{project}},
             hire_date => $date,
-            updated_by => $c->user->user_id
+            updated_by => $c->user->user_id,
+            role_id => $reverse_roles{$params->{roles}},
 	    	});
 
         foreach my $skill (@found_skills) {
@@ -122,14 +135,12 @@ sub save_new_employee :Local :OnError('add') {
                     });
             }
     	} or do {
-    		$c->stash->{error_msg} = "There was an error while saving the new employee, please try again later.";
-    		$c->response->redirect('/employee/add');
-            $c->detach();
+    		$c->response->redirect($c->uri_for('list',
+                {mid => $c->set_status_msg("There was an error while saving the new employee, please try again later.")}));
     	};
-    
-	$c->flash( success => "The employee is saved successfully" );
-    $c->response->redirect('/employee/list');
-    $c->detach();
+
+        $c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("The employee has been added successfully.")}));
 
 }
 
@@ -150,14 +161,16 @@ sub edit :Local {
 			last_name => $employee->last_name,
 			department => $departments{$employee->department->id},
 			project => $projects{$employee->project_id},
+            role => $roles{$employee->role_id},
 			skills => $scal,
             departments => \%departments,
             projects => \%projects,
+            roles => \%roles,
 			});
 
 	} else {
-		$c->stash->{error_msg} = "No employee found with this id.";
-    	$c->forward('list');
+		$c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("No employee found with this id.")}));
 	}
 
 }
@@ -172,6 +185,7 @@ sub update :Local :OnError('edit') {
     my @words = split /,/, $params->{skills};
     my @found_skills;
     foreach my $skill (@words) {
+        $skill =~ s/^\s+|\s+$//g;
         if ($reverse_skills{$skill}) {
             push @found_skills, $reverse_skills{$skill};
         } else {
@@ -181,18 +195,25 @@ sub update :Local :OnError('edit') {
                     });
                 push @found_skills, $new_skill->id;
                 } or do {
-                    $c->stash->{error_msg} = "There was an error while adding the new skill to the database, please try again later.";
-                    $c->go('list');
+                    $c->response->redirect($c->uri_for('list',
+                        {mid => $c->set_status_msg("There was an error while adding the new skill to the database, please try again later.")}));
                 }
         }
     }
 
+    unless ( $params->{skills} ) {
+        my $relations = $c->model('DB::EmployeeSkill')->search({
+                id_employee => $employee->id,
+                })->delete;
+    }
+    
     eval {
     	$employee->update({
     		first_name => $params->{first_name},
     		last_name => $params->{last_name},
     		department => $reverse_departments{$params->{department}},
     		project_id => $reverse_projects{$params->{project}},
+            role_id => $reverse_roles{$params->{roles}},
     		});
         foreach my $skill (@found_skills) {
                 my $relation = $c->model('DB::EmployeeSkill')->update_or_create({
@@ -201,12 +222,12 @@ sub update :Local :OnError('edit') {
                     });
             };
     } or do {
-    	$c->stash->{error_msg} = "There was an error while updating the employee, please try again later.";
-    	$c->go('edit');
+    	$c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("There was an error while updating the employee, please try again later.")}));
     };
 
-    $c->stash->{error_msg} = "The employee has been updated.";
-    $c->go('list');
+    $c->response->redirect($c->uri_for('list',
+        {mid => $c->set_status_msg("The employee has been updated.")}));
 
 }
 
@@ -214,10 +235,24 @@ sub delete :Local :Args(1) {
     my ($self, $c, $id) = @_;
 
     my $employee_to_delete = $c->model('DB::Employee')->find($id);
-    $employee_to_delete->delete if $employee_to_delete;
 
-    $c->stash->{status_msg} = "Employee deleted.";
-    $c->go('list');
+    if ($employee_to_delete) {
+        eval {
+            $employee_to_delete->delete;
+            my $relations = $c->model('DB::EmployeeSkill')->search({
+                id_employee => $id,
+                })->delete;
+        } or do {
+            $c->response->redirect($c->uri_for('list',
+                {mid => $c->set_status_msg("There was an error while deleting the employee, please try again later.")}));
+        }
+    } else {
+        $c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("No employee found with this id.")}));
+    }
+
+    $c->response->redirect($c->uri_for('list',
+        {mid => $c->set_status_msg("Employee deleted.")}));
 
 }
 

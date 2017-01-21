@@ -67,11 +67,6 @@ __PACKAGE__->table("employees");
   is_nullable: 1
   size: 45
 
-=head2 technical_skills
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 project_id
 
   data_type: 'int'
@@ -89,6 +84,12 @@ __PACKAGE__->table("employees");
   is_nullable: 0,
   size: 11
 
+=head2 role_id
+
+  data_type: 'int'
+  is_nullable: 1
+  size: 3
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -102,14 +103,14 @@ __PACKAGE__->add_columns(
   { data_type => "date", is_nullable => 0 },
   "department",
   { data_type => "varchar", is_nullable => 1, size => 45 },
-  "technical_skills",
-  { data_type => "text", is_nullable => 1 },
   "project_id",
   { data_type => "integer", is_nullable => 1, size => 11 },
   "last_updated",
   { data_type => "timestamp", is_nullable => 0 },
   "updated_by",
   { data_type => "integer", is_nullable => 0, size => 11 },
+  "role_id",
+  { data_type => "integer", is_nullable => 1, size => 3 },
 );
 
 =head1 PRIMARY KEY
@@ -140,6 +141,21 @@ __PACKAGE__->belongs_to(
   "department",
   "MyApp::Schema::Users::Result::Department",
   { id => "department" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
+=head2 role
+
+Type: belongs_to
+
+Related object: L<MyApp::Schema::Users::Result::Role>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "role",
+  "MyApp::Schema::Users::Result::Role",
+  { id => "role_id" },
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
