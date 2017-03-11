@@ -2,4 +2,5 @@
 <!-- <h1 class="cover-heading">Please</h1> -->
 <div class="container" style="background-image: url(http://www.snacknation.com/wp-content/uploads/2015/08/scrum-board-for-office-management.jpg); height: 343px; width: 800px; border: 1px solid black;"> </div>
 </div>
-
+<div class="col-md-2 col-md-offset-5"> <a href="[% c.uri_for('/login_user') %]" class="text-center new-account">Log in </a></div>
+<div class="col-md-2 col-md-offset-5"> <a href="[% c.uri_for('/signup') %]" class="text-center new-account">Create an account </a></div>

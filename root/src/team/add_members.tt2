@@ -2,15 +2,46 @@
 <div class="container">
 	<b>Add members to your team :</b>
 	<br>
+	<div class="row">
+    <div class="col-sm-4" style="background-color:lavenderblush;">BA <span class="badge">[% no_of_ba %]</span></div>
+    <div class="col-sm-4" style="background-color:lavenderblush;">Developer <span class="badge">[% no_of_dev %]</span></div>
+    <div class="col-sm-4" style="background-color:lavenderblush;">QA <span class="badge">[% no_of_qa %]</div>
+  	</div>
+  	<div>
+  	<b>Skills to cover:<b><br>
+    <input type="text" id="skills_to_cover" name="skills_to_cover" data-role="tagsinput" style="border-style:none; box-shadow: none;" value="[% skills_to_cover %]" disabled="disabled"><br>
+    </div>
+<!-- 	<a href="#">BA <span class="badge">[% no_of_ba %]</span></a><br>
+	<a href="#">Developer <span class="badge">[% no_of_dev %]</span></a><br>
+	<a href="#">QA <span class="badge">[% no_of_qa %]</span></a> -->
 	<br>
-	<div class="list-group">
+	<div class="list-group" >
 	<input type="hidden" name="id" id="id" value="[% id %]">
+	<b>Available BAs :</b>
 	<ul>
-	[% FOREACH key IN employees.keys.sort -%]
-		<li name="employee" id="employee" class="list-group-item">[% employees.$key.name %]</li>
-		<li>[% employees.$key.skills %]</li>
+	[% FOREACH key IN bas.keys.sort -%]
+		<li name="employee" id="employee" class="list-group-item">[% bas.$key %]</li>
+		<li>[% employees.$key.skills ? employees.$key.skills : "No skills found" %]</li>
+		<a href="[% c.uri_for(c.controller.action_for('add_to_team'), id, key) %]">Add to team</a>
+	[% END -%]
+	</ul>
+	<b>Available Devs :</b>
+	<ul>
+	[% FOREACH key IN devs.keys.sort -%]
+		<li name="employee" id="employee" class="list-group-item">[% devs.$key %]</li>
+		<li>[% employees.$key.skills ? employees.$key.skills : "No skills found" %]</li>
+		<a href="[% c.uri_for(c.controller.action_for('add_to_team'), id, key) %]">Add to team</a>
+	[% END -%]
+	</ul>
+	<b>Available QAs :</b>
+	<ul>
+	[% FOREACH key IN qas.keys.sort -%]
+		<li name="employee" id="employee" class="list-group-item">[% qas.$key %]</li>
+		<li>[% employees.$key.skills ? employees.$key.skills : "No skills found" %]</li>
 		<a href="[% c.uri_for(c.controller.action_for('add_to_team'), id, key) %]">Add to team</a>
 	[% END -%]
 	</ul>
 	</div>
 </div>
+<script type="text/javascript">
+</script>

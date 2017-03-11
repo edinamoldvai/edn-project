@@ -30,6 +30,8 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
+__PACKAGE__->load_components(qw/Numeric Core/); # Load the Numeric component
+
 =head1 TABLE: C<Teams>
 
 =cut
@@ -88,6 +90,36 @@ __PACKAGE__->table("Teams");
   data_type: 'text'
   is_nullable: 1
 
+=head2 no_of_ba
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 no_of_dev
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 no_of_qa
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 ba_filled
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 dev_filled
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 qa_filled
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -109,8 +141,27 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 1 },
   "notes",
   { data_type => "text", is_nullable => 1 },
+  "no_of_ba",
+  { data_type => "integer", is_nullable => 1 },
+  "no_of_dev",
+  { data_type => "integer", is_nullable => 1 },
+  "no_of_qa",
+  { data_type => "integer", is_nullable => 1 },
+  "ba_filled",
+  { data_type => "integer", is_nullable => 1 },
+  "dev_filled",
+  { data_type => "integer", is_nullable => 1 },
+  "qa_filled",
+  { data_type => "integer", is_nullable => 1 },
 );
 
+# Define 'simple' numeric cols, these will have some extra accessors & mutators
+ #  created
+ __PACKAGE__->numeric_columns(qw/no_of_qa no_of_ba no_of_dev ba_filled dev_filled qa_filled/);
+  # Define min and max values for a column
+ __PACKAGE__->numeric_columns(no_of_dev => {min_value => 0, max_value => 30});
+ __PACKAGE__->numeric_columns(no_of_ba => {min_value => 0, max_value => 30});
+__PACKAGE__->numeric_columns(no_of_qa => {min_value => 0, max_value => 30});
 =head1 PRIMARY KEY
 
 =over 4
@@ -145,7 +196,22 @@ Related object: L<MyApp::Schema::Result::ProjectSkill>
 __PACKAGE__->has_many(
   "project_skill",
   "MyApp::Schema::Users::Result::ProjectSkill",
-  { "foreign.id" => "self.id_project" },
+  { "foreign.id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 sprints
+
+Type: has_many
+
+Related object: L<MyApp::Schema::Result::Sprint>
+
+=cut
+
+__PACKAGE__->has_many(
+  "sprint_team",
+  "MyApp::Schema::Users::Result::Sprint",
+  { "foreign.project_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 

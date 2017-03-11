@@ -3,6 +3,8 @@ use Moose;
 use namespace::autoclean;
 
 use DateTime; 
+use Email::Valid;
+use Switch;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -59,8 +61,6 @@ sub auto :Path :Args(0) {
     %reverse_skills = reverse %skills;
     %reverse_roles = reverse %roles;
 
-    warn Data::Dumper::Dumper(\%roles);
-
 }
 
 sub list :Local :Args(0) {
@@ -115,6 +115,13 @@ sub save_new_employee :Local :OnError('add') {
     	}
     }
 
+    unless (Email::Valid->address(
+        -address => $params->{email},
+        -mxcheck => 1 )) {
+        return $c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("The email address is not valid.")}));
+    }
+
     my $date = getTime();
 
     eval {
@@ -147,6 +154,8 @@ sub save_new_employee :Local :OnError('add') {
 sub edit :Local {
 	my ($self, $c, $id) = @_;
 
+    $c->load_status_msgs;
+
     my $params = $c->req->params;
 
 	my $employee = $c->model('DB::Employee')->find($id);
@@ -159,6 +168,7 @@ sub edit :Local {
 			id => $employee->id,
 			first_name => $employee->first_name,
 			last_name => $employee->last_name,
+            email => $employee->email,
 			department => $departments{$employee->department->id},
 			project => $projects{$employee->project_id},
             role => $roles{$employee->role_id},
@@ -201,6 +211,13 @@ sub update :Local :OnError('edit') {
         }
     }
 
+    unless (Email::Valid->address(
+        -address => $params->{email},
+        -mxcheck => 1 )) {
+        return $c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("The email address is not valid.")}));
+    }
+
     unless ( $params->{skills} ) {
         my $relations = $c->model('DB::EmployeeSkill')->search({
                 id_employee => $employee->id,
@@ -211,8 +228,8 @@ sub update :Local :OnError('edit') {
     	$employee->update({
     		first_name => $params->{first_name},
     		last_name => $params->{last_name},
+            email => $params->{email},
     		department => $reverse_departments{$params->{department}},
-    		project_id => $reverse_projects{$params->{project}},
             role_id => $reverse_roles{$params->{roles}},
     		});
         foreach my $skill (@found_skills) {
@@ -221,13 +238,16 @@ sub update :Local :OnError('edit') {
                     id_skill => $skill
                     });
             };
+
+        $c->response->redirect($c->uri_for('list',
+            {mid => $c->set_status_msg("The employee has been updated.")}));
+
     } or do {
     	$c->response->redirect($c->uri_for('list',
             {mid => $c->set_status_msg("There was an error while updating the employee, please try again later.")}));
     };
 
-    $c->response->redirect($c->uri_for('list',
-        {mid => $c->set_status_msg("The employee has been updated.")}));
+    
 
 }
 
@@ -255,6 +275,40 @@ sub delete :Local :Args(1) {
         {mid => $c->set_status_msg("Employee deleted.")}));
 
 }
+
+sub delete_project :Local :Args(1) {
+    my ($self, $c, $id) = @_;
+
+    warn Data::Dumper::Dumper($id);
+
+    my $employee = $c->model('DB::Employee')->find($id);
+    my $project = $employee->team;
+    my $employee_role = $employee->role->role;
+
+    warn Data::Dumper::Dumper($employee_role);
+    warn Data::Dumper::Dumper($project);
+    eval {
+        switch ($employee_role) {
+            case "Developer" { $project->decrease_dev_filled(1)}
+            case "Business Analyst" { $project->decrease_ba_filled(1)}
+            case "QA" { $project->decrease_qa_filled(1)}
+        }
+        $employee->project_id(undef);
+        $employee->update;
+        $project->update;
+
+        return $c->response->redirect($c->uri_for('edit', $id,
+            {mid => $c->set_status_msg("Project deleted from employee.")}));
+    } or do {
+        return $c->response->redirect($c->uri_for('edit', $id,
+            {mid => $c->set_status_msg("There was an error while deleting the project from employee, please try again later.")}));
+    }
+    
+    
+                
+
+}
+
 
 sub get_skill :Private {
     my ( $self, $c, $id ) = @_;

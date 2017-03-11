@@ -1,0 +1,66 @@
+<br>
+<div class="container">
+	<form action ="[% c.uri_for('save_sprint') %]" method ="Post">
+		<div class="container-fluid col-xs-6">
+		<input type="hidden" name="id" id="id" value="[% id %]">
+		<b>Last sprint ended: [% last_sprint_ended %]<b>
+		<br>
+		<br>
+		<label for="sprint_description">Sprint description</label>
+	    <textarea rows="5" name="sprint_description" class="form-control input-sm" id="sprint_description"></textarea><br>
+	    <label class="btn btn-primary" for="my-file-selector">
+		    <input id="my-file-selector" type="file" style="display:none;">
+		    Browse file
+		</label>
+
+	    <label for="datepicker">Start date</label>
+	    <br>
+	    <input type="date" id="datepicker" name="datepicker" onblur="setEndDate([% iteration %])" required/>
+	    <br>
+		<br>
+	    <label for="datepicker_end">End date</label>
+	    <br>
+	    <input type="date" id="datepicker_end" name="datepicker_end" required />
+	    <br>
+	    <br>
+	    <label for="sprint_name">Sprint</label>
+		<br>
+		<input type="text" id="sprint_name" name="sprint_name" class="form-control input-sm" onclick="setName()" />
+	    <br>
+	    <label for="velocity">Sprint velocity</label>
+	    <br>
+	    <input type="number" min="0" name="velocity" id="velocity" required><br>
+	    <br>
+		<input type="submit"></input>
+		<a href="[% c.uri_for(c.controller.action_for('view_sprints'), id) %]">Cancel</a>
+	    </div>
+	</form>
+</div>
+
+<script>
+
+function setEndDate(iteration) {
+
+	$('#datepicker').change(function() {
+	  var date= this.valueAsDate;
+	  date.setDate(date.getDate() + iteration);
+	  $('#datepicker_end')[0].valueAsDate = date;
+	});
+
+	$('#datepicker').change();
+
+}
+
+function setName() {
+
+	var start = $('#datepicker').val();
+	var end = $('#datepicker_end').val();
+	$('#sprint_name').change(function() {
+		$('#sprint_name').val("Sprint : ".concat(start).concat(" - ").concat(end));
+	});
+
+	$('#sprint_name').change();
+
+}
+
+</script>

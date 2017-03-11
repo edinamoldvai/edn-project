@@ -30,17 +30,26 @@
     <input id="timepicker3" type="text" class="form-control input-sm" name="retrospective_time">
 </div>
 <div class="container col-xs-6">
-	<label for="team_notes">Notes</label><br>
-	<textarea rows="5" class="form-control input-sm" id="team_notes" name="team_notes"></textarea>
-    <br>
-        <label for="skills">Skills</label><br>
-        <input type="text" id="skills" name="skills" data-role="tagsinput">
+            <label for="team_notes">Notes</label><br>
+            <textarea rows="5" class="form-control input-sm" id="team_notes" name="team_notes"></textarea>
+                <br>
+        <div class="col-xs-4">
+            <label for="skills">Skills</label><br>
+            <input type="text" id="skills" name="skills" data-role="tagsinput"><br>
+            <label for="no_of_ba" class="text-left" data-toggle="tooltip" data-placement="right" title="How many business analysts do you want in the team?">Business Analysts</label>
+            <input type="number" min="0" name="no_of_ba" class="form-control input-sm" id="no_of_ba" required=" "><br>
+            <label for="no_of_dev" class="text-left" data-toggle="tooltip" data-placement="right" title="How many developers do you want in the team?">Developers</label>
+            <input type="number" min="0" name="no_of_dev" class="form-control input-sm" id="no_of_dev" required=""><br>
+            <label for="no_of_qa" class="text-left" data-toggle="tooltip" data-placement="right" title="How many QAs do yo want in the team?">QAs</label>
+            <input type="number" min="0" name="no_of_qa" class="form-control input-sm" id="no_of_qa" required=""><br>
+        </div><br>
     <br>
 </div>
         <br>
+        <br>
 <div class="container">
 <div class="row">
-  <div class="col-md-6 offset-md-3">
+  <div class="col-xs-4">
   <input type="submit"></input>
   <a href="[% c.uri_for('add_new_team') %]">Cancel</a>
   </div>

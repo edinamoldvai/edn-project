@@ -21,22 +21,34 @@ Catalyst Controller.
 
 =cut
 
-sub index :Path('/') :Args(0) {
-    my ( $self, $c ) = @_;
+# sub index :Path('/') :Args(0) {
+#     my ( $self, $c ) = @_;
 
-    $c->stash(template => 'index.tt2');
-}
+#     # will show current sprint status
+#     my @sprints = $c->model("DB::Sprint")->search(
+#         {},
+#         {
+#             join => "sprint_team",
+#             '+select' => ['sprint_team.target_velocity'],
+#             '+as'     => ['sprint_team_target_velocity'],
+#             order_by => { "-desc" => "end_date" },
+#             result_class => "DBIx::Class::ResultClass::HashRefInflator",
+#         })->all();
+#     warn Data::Dumper::Dumper(\@sprints);
+    
+#     $c->stash(template => 'index.tt2');
+# }
 
 
-=head2 index
+# =head2 index
 
-=cut
+# =cut
 
-sub list :Path('/') :Args(0) {
-    my ( $self, $c ) = @_;
+# sub list :Path('/') :Args(0) {
+#     my ( $self, $c ) = @_;
 
-    $c->stash(template => 'page.tt2');
-}
+#     $c->stash(template => 'page.tt2');
+# }
 =encoding utf8
 
 =head1 AUTHOR

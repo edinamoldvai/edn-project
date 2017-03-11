@@ -2,6 +2,12 @@ package MyApp::Controller::Team;
 use Moose;
 use namespace::autoclean;
 
+use Email::Sender::Simple qw(sendmail);
+use Email::Simple;
+use Email::Simple::Creator;
+use Switch;
+
+
 BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
@@ -47,7 +53,7 @@ sub save_new_team :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     my $params = $c->req->params();
-    warn Data::Dumper::Dumper($params);
+
     my $team_name_already_exists = $c->model('DB::Team')->search({
     		name => $params->{name}
     		})->first();
@@ -105,6 +111,9 @@ sub save_new_team :Local :Args(0) {
 		    	sprint_retrospective => $retrospective_time,
 		    	manager_id => $c->user->user_id,
 		    	notes => $params->{team_notes},
+		    	no_of_ba => $params->{no_of_ba},
+		    	no_of_dev => $params->{no_of_dev},
+		    	no_of_qa => $params->{no_of_qa}
 		    	});
 		    foreach my $skill (@found_skills) {
 	                my $relation = $c->model('DB::ProjectSkill')->create({
@@ -112,13 +121,16 @@ sub save_new_team :Local :Args(0) {
 	                    id_skill => $skill
 	                    });
 	            }
+
+	            return $c->response->redirect($c->uri_for('view_teams_for_this_user',
+            		{mid => $c->set_status_msg("The team is saved successfully.")}));
+
 	        } or do {
+	        	warn Data::Dumper::Dumper(@$);
 	    		$c->response->redirect($c->uri_for('view_teams_for_this_user',
             		{mid => $c->set_status_msg("There was an error while saving the new employee, please try again later.")}));	
 	    	};
-	    
-	    $c->response->redirect($c->uri_for('view_teams_for_this_user',
-            {mid => $c->set_status_msg("The team is saved successfully.")}));	
+	    	
 	    	
 	}
 
@@ -174,9 +186,12 @@ sub edit :Local {
 			retrospective_time => $retrospective_time,
 			retrospective_day => $retrospective_day,
 			team_notes => $team->get_column("notes"),
-			skills => $scal
+			skills => $scal,
+			no_of_ba => $team->get_column("no_of_ba"),
+			no_of_dev => $team->get_column("no_of_dev"),
+			no_of_qa => $team->get_column("no_of_qa"),
 			});
-
+		warn Data::Dumper::Dumper($c->stash);
 	} else {
 		$c->response->redirect($c->uri_for('view_teams_for_this_user',
             {mid => $c->set_status_msg("This team doesn't exist.")}));	
@@ -187,6 +202,8 @@ sub edit :Local {
 
 sub view_teams_for_this_user :Local :Args(0) {
 	my ($self, $c) = @_;
+
+	$c->load_status_msgs;
 
 	my @teams_list = $c->model('DB::Team')->search({
 		manager_id => $c->user->user_id
@@ -267,6 +284,9 @@ sub update :Local {
 	    	sprint_planning => $params->{planning_time},
 	    	sprint_retrospective => $params->{retrospective_time},
 	    	notes => $params->{team_notes},
+	    	no_of_ba => $params->{no_of_ba},
+		    no_of_dev => $params->{no_of_dev},
+		    no_of_qa => $params->{no_of_qa}
 	    	});
 	    foreach my $skill (@found_skills) {
                 my $relation = $c->model('DB::ProjectSkill')->update_or_create({
@@ -369,9 +389,14 @@ sub add_members :Local {
 	my @employees_without_project = $c->model('DB::Employee')->search(
 		{	project_id => undef },
 		{
-			columns => [ { id => 'id' }, { first_name => "first_name" }, { last_name => "last_name" } ],
+			columns => [ { id => 'id' }, { first_name => "first_name" }, { last_name => "last_name" }, { role_id => "role_id"} ],
 			result_class => 'DBIx::Class::ResultClass::HashRefInflator',
 		})->all;
+
+	my %roles;
+	foreach my $unit (@employees_without_project) {
+		$roles{$unit->{role_id}}{$unit->{id}} = "$unit->{first_name} $unit->{last_name}";
+	}
 
 	my @employee_skills = $c->model('DB::EmployeeSkill')->search(
         {},
@@ -389,7 +414,7 @@ sub add_members :Local {
         } @employee_skills;
 
 	my %pretty_employees = map {
-            $_->{id} => "$_->{first_name} $_->{last_name}",
+            $_->{id} => "$_->{first_name} $_->{last_name}"
         } @employees_without_project;
 
     my %pretty_employees_skills;
@@ -399,11 +424,22 @@ sub add_members :Local {
 	        	$pretty_employees_skills{$employee}{name} = $pretty_employees{$employee};
         	} 
         }
-    my @covered_skills = get_covered_skills($self, $c, $id);
+    my $project = $c->model('DB::Team')->find($id);
+    my %skills_for_team = $self->get_skill($c, $id);
+    my $scal = join(", ", map { "$skills_for_team{$_}" } keys %skills_for_team);
+    warn Data::Dumper::Dumper($scal);
+    # my @covered_skills = get_covered_skills($self, $c, $id);
 	$c->stash({
+		no_of_ba => $project->no_of_ba - $project->ba_filled,
+		no_of_dev => $project->no_of_dev - $project->dev_filled,
+		no_of_qa => $project->no_of_qa - $project->qa_filled,
 		id => $id,
 		employees => \%pretty_employees_skills,
-		template => 'team/add_members.tt2'
+		bas => %roles->{3},
+		devs => %roles->{1},
+		qas => %roles->{2},
+		template => 'team/add_members.tt2',
+		skills_to_cover => $scal,
 		});
 
 }
@@ -413,10 +449,25 @@ sub add_to_team :Local {
 
 	my $employee = $c->model('DB::Employee')->find($id_employee);
 	my $project = $c->model('DB::Team')->find($id_project);
+
+	warn Data::Dumper::Dumper($employee);
+
+	my $role = $c->model('DB::Role')->find($employee->role_id)->get_column("role");
+	warn Data::Dumper::Dumper($role);
 	if($employee && $project) {
 		eval {
 			$employee->project_id($id_project);
 			$employee->update;
+
+			switch ($role) {
+				case "Developer" { $project->increase_dev_filled(1)}
+				case "Business Analyst" { $project->increase_ba_filled(1)}
+				case "QA" { $project->increase_qa_filled(1)}
+			}
+
+			$project->update;
+
+			# $project
 		} or do {
 			$c->response->redirect($c->uri_for('view_teams_for_this_user',
             	{mid => $c->set_status_msg("There was an error while adding the employee to the project, please try again later.")}));
@@ -426,8 +477,12 @@ sub add_to_team :Local {
             {mid => $c->set_status_msg("This project or employee does not exist in the database.")}));
 	}
 
-	$c->response->redirect($c->uri_for('view_teams_for_this_user',
-        {mid => $c->set_status_msg("The team is successfully updated.")}));
+	my $mail = send_mail($self,$c,$employee,$project);
+
+	warn Data::Dumper::Dumper($mail);
+
+	return $c->response->redirect($c->uri_for('add_members', $id_project,
+        {mid => $c->set_status_msg("The team is successfully updated.")})) if $mail;
 	
 }
 
@@ -446,6 +501,28 @@ sub get_covered_skills :Private {
 		});
 	
 }
+
+sub send_mail :Private {
+	my ($self, $c, $employee, $project) = @_;
+
+	my $to = $employee->email;
+	my $from = "m_edina_92\@yahoo.com";
+	my $subject = "You've been invited to join ".$project->name;
+
+ 	my $mailprog  = "/usr/sbin/sendmail -t -odb";
+
+        open( MAIL, "|$mailprog" );
+        print MAIL "From: ".$from." \n";
+        print MAIL "To: ".$to." \n";
+        print MAIL "Subject: $subject \n";
+        print MAIL "Content-Type: text/plain; charset='iso-8859-1';\n";
+        print MAIL "Content-Transfer-Encoding: 7bit\n\n";
+        print MAIL $subject;
+        print MAIL "\n\n\n";
+        close( MAIL );
+
+}
+
 
 sub trim {
 	my ($self, $string) = @_;

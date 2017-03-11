@@ -7,6 +7,8 @@
 	    <input type="text" name="first_name" class="form-control input-sm" id="first_name" value="[% first_name %]" required><br>
 	    <label for="last_name">Last name</label>
 	    <input type="text" name="last_name" class="form-control input-sm" id="last_name" value="[% last_name %]" required><br>
+	    <label for="email">Email</label>
+	    <input type="text" name="email" class="form-control input-sm" id="email" value="[% email %]" required><br>
 	    <label for="department">Select department</label>
 			<select class="form-control" id="department" name="department" required>
 			[% FOREACH key IN departments.keys.sort -%]
@@ -21,12 +23,14 @@
 			[% END -%]
 			</select>
 		<br>
-		<label for="project">Select project</label>
-			<select class="form-control" id="project" name="project">
+		<label for="project">Project</label>
+			<select class="form-control" id="project" name="project" disabled="true">
+				<option>None</option>
 			[% FOREACH key IN projects.keys.sort -%]
 				<option>[% projects.$key %]</option>
 			[% END -%]
 			</select>
+			<a href="[% c.uri_for(c.controller.action_for('delete_project'), id) %]">Delete</a>
 		<br>
 		<label for="skills">Skills</label><br>
 	    <input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]">

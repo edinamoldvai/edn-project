@@ -1,6 +1,8 @@
 package MyApp::Controller::Root;
 use Moose;
 use namespace::autoclean;
+use DateTime                   qw( );
+use DateTime::Format::Strptime qw( );
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -57,7 +59,8 @@ sub auto :Private {
     # User found, so return 1 to continue with processing after this 'auto'
     return 1;
 }
-    
+
+
 =head2 index
 
 The root page (/)
@@ -67,9 +70,35 @@ The root page (/)
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    # Hello World
-    # $c->response->body( $c->welcome_message );
-    $c->stash(template => 'index.tt2');
+    # will show current sprint status
+    my @sprints = $c->model("DB::Sprint")->search(
+        {},
+        {
+            join => "sprint_team",
+            select => ['sprint_team.name', 'me.end_date', { max => 'me.end_date' } ],
+            as     => ['sprint_team_name', 'end_date', 'max_date'],
+            group_by => [ "project_id" ],
+            result_class => "DBIx::Class::ResultClass::HashRefInflator",
+        })->all();
+    warn Data::Dumper::Dumper(\@sprints);
+    my $format = DateTime::Format::Strptime->new(
+        pattern   => '%Y-%m-%d',
+        time_zone => 'local',
+        on_error  => 'croak',
+    );
+    my $ref  = DateTime->today( time_zone => 'local' );
+
+    my %mapped_sprints = map { $_->{sprint_team_name} => $format->parse_datetime($_->{max_date}) >= $ref ? 
+        $_->{sprint_team_name}." - ".
+        $ref->delta_days($format->parse_datetime($_->{max_date}))->in_units('days').
+        " more day(s) in current iteration" : $_->{sprint_team_name}." - Last iteration overdue",
+        } @sprints;
+    warn Data::Dumper::Dumper(\%mapped_sprints);
+    $c->stash({
+        superu => $c->user->display_name,
+        sprints => \%mapped_sprints,
+        template => 'index.tt2'
+        });
 }
 
 =head2 default

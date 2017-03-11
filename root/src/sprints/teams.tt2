@@ -1,0 +1,8 @@
+<br>
+<div class="container">
+	<div class="list-group">
+	[% FOREACH key IN data.keys.sort -%]
+		<a href="[% c.uri_for(('/sprints/view_sprints'), key) %]" name="team" id="team" class="list-group-item">[% data.$key %]</a>
+	[% END -%]
+	</div>
+</div>

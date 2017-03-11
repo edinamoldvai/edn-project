@@ -1,0 +1,58 @@
+<input type="hidden" name="id" id="id" value="[% id %]">
+<br>
+<div class="container">
+	<br>
+	<div id="chartContainer" style="height: 360px; width: 100%;"></div>
+	<br>
+	<a href="[% c.uri_for(('/sprints/add_sprint'), id) %]">Add a new sprint</a>
+	<br><br><br>
+	[% FOREACH key IN sprints -%]
+		<a href="#" name="skill" id="skill" class="list-group-item">[% key.sprint_title %]</a>
+		  <div class="progress">
+		    <div class="progress-bar progress-bar-striped active" id="progressbar" role="progressbar" aria-valuenow="[% key.velocity %]" aria-valuemin="0" aria-valuemax="[% key.sprint_team_target_velocity %]" ></div>
+		  </div>
+	[% END -%]
+</div>
+<script>
+	$('.progress-bar').each(function() {
+	  var min = $(this).attr('aria-valuemin');
+	  var max = $(this).attr('aria-valuemax');
+	  var now = $(this).attr('aria-valuenow');
+	  var siz = (now-min)*100/(max-min);
+	  $(this).css('width', siz+'%');
+	  $(this).text(now+'/'+max);
+	});
+</script>
+<script type="text/javascript">
+CanvasJS.addColorSet("greenShades",
+                [
+	                "#3CB371",
+	                "#90EE90",
+	                "#2F4F4F",
+	                "#008080",
+	                "#2E8B57",               
+                ]);
+var dps = [];
+[% FOREACH key IN datapoints -%]
+	dps.push({label: "[% key.sprint_title %]", y: [% key.velocity %] });
+[% END -%]
+
+
+var chart = new CanvasJS.Chart("chartContainer",
+	{   
+		colorSet: "greenShades",
+	    axisY:{
+	    	maximum: 150,
+	    },
+	    data: [
+	    {
+	    	type: "column",
+	    	dataPoints: dps
+	    }
+	    ],
+	    exportEnabled: true,
+	});
+
+chart.render();
+
+</script>

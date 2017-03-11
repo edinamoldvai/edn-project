@@ -53,11 +53,11 @@ sub index :Path :Args(0) {
                                password => $password  } )) {
             # If successful, then let them use the application
             $c->response->redirect($c->uri_for(
-                $c->controller('Account')->action_for('list')));
+                $c->controller('Root')->action_for('index')));
             return;
         } else {
             # Set an error message
-            $c->stash(error_msg => "Bad username or password.");
+            $c->stash(error_msg => "Wrong username or password.");
         }
     } else {
         # Set an error message
@@ -67,6 +67,51 @@ sub index :Path :Args(0) {
 
     # If either of above don't work out, send to the login page
     $c->stash(template => 'login.tt2');
+}
+
+
+
+sub signup :Path('/signup') :Args(0) {
+    my ($self, $c) = @_;
+
+    my $params = $c->req->params();
+
+    my $user_already_exists = $c->model("DB::User")->search({
+        email => $params->{email}
+        })->first();
+
+    my $password_confirmed = $params->{password} eq $params->{password_confirm} ? 1 : 0;
+
+    my $user;
+    if ( !$user_already_exists && $password_confirmed ) {
+        eval {
+            $user = $c->model("DB::User")->create({
+            email => $params->{email},
+            display_name => $params->{username},
+            password => $params->{password}
+            });
+            } or do {
+                 $c->stash(error_msg => "There was an error while creating the user, please data and try again.");
+            };
+            if ($user) {
+                if ( $c->authenticate({
+                    email => $user->email,
+                    password => $user->password
+                    }) ) {
+                    # If successful, then let them use the application
+                    $c->response->redirect($c->uri_for(
+                        $c->controller('Root')->action_for('index')));
+                    return;
+                } else {
+                    # Set an error message
+                    $c->stash(error_msg => "The user couldn't log in, please try again later.");
+                }
+            }
+            
+    } 
+    # If successful, then let them use the application
+    $c->stash(template => 'signup.tt2');
+
 }
 
 =encoding utf8

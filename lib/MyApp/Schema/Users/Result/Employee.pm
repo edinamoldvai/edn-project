@@ -56,6 +56,12 @@ __PACKAGE__->table("employees");
   is_nullable: 0
   size: 100
 
+=head2 email
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 50
+
 =head2 hire_date
 
   data_type: 'date'
@@ -99,6 +105,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "last_name",
   { data_type => "varchar", is_nullable => 0, size => 100 },
+  "email",
+  { data_type => "varchar", is_nullable => 0, size => 50 },
   "hire_date",
   { data_type => "date", is_nullable => 0 },
   "department",
