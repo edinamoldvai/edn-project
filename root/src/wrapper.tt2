@@ -12,7 +12,7 @@
     <title>PManage</title>
 
     <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://getbootstrap.com/examples/signin/signin.css" rel="stylesheet">
+  <!--     <link href="https://getbootstrap.com/examples/signin/signin.css" rel="stylesheet"> -->
     <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" />
@@ -88,8 +88,11 @@
 
 <div id="content">
     [%# Status and error messages %]
-    <div id="status_msg">[% status_msg %]</div>
-    <div id="error_msg">[% error_msg %]</div>
+    [% IF status_msg %]
+    <div class="alert alert-success">[% status_msg %]</div>
+    [% ELSIF error_msg %]
+    <div class="alert alert-danger">[% error_msg %]</div>
+    [% END %]
     [%# This is where TT will stick all of your template's contents. -%]
     [% content %]
 </div><!-- end content -->

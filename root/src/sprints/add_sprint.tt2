@@ -1,5 +1,18 @@
 <br>
 <div class="container">
+	<b>Upload an xlsx file</b><br>
+	<form action ="[% c.uri_for('upload') %]" method ="POST">
+		<input type="hidden" name="id" id="id" value="[% id %]">
+		<label class="btn btn-primary" for="my-file-selector">
+		    <input id="my-file-selector" name="file" type="file" >
+		    Browse file
+		</label>
+		<input type="submit"></input>
+	</form>
+	<br>
+	<b>Or add a sprint manually</b>
+	<br><br>
+
 	<form action ="[% c.uri_for('save_sprint') %]" method ="Post">
 		<div class="container-fluid col-xs-6">
 		<input type="hidden" name="id" id="id" value="[% id %]">
@@ -8,10 +21,6 @@
 		<br>
 		<label for="sprint_description">Sprint description</label>
 	    <textarea rows="5" name="sprint_description" class="form-control input-sm" id="sprint_description"></textarea><br>
-	    <label class="btn btn-primary" for="my-file-selector">
-		    <input id="my-file-selector" type="file" style="display:none;">
-		    Browse file
-		</label>
 
 	    <label for="datepicker">Start date</label>
 	    <br>

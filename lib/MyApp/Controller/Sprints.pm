@@ -151,12 +151,29 @@ sub save_sprint :Local :Args(0) {
             {mid => $c->set_status_msg("Sprint successfully saved.")}));
 		} or do {
 			$c->response->redirect($c->uri_for('list',
-                {mid => $c->set_status_msg("There was an error while adding the sprint to the database, please try again later.")}));
+                {mid => $c->set_error_msg("There was an error while adding the sprint to the database, please try again later.")}));
 		};
 
 
 }
 
+sub upload :Local {
+    my ( $self, $c ) = @_;
+
+    my $params = $c->req->params();
+
+    # if (!$c->req->upload('my-file-selector')) {
+    #     $c->stash( error_msg => 'There is no file chosen to upload!');
+    #     $c->go("add_sprint", [$params->{id}]);
+    #     return;
+    # }
+
+
+    #make the upload of the file
+    my $upload = $c->req->upload('file');
+    warn Data::Dumper::Dumper($upload);
+    # $upload->copy_to("/MyApp/files/");
+}
 =encoding utf8
 
 =head1 AUTHOR

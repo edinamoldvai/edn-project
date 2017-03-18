@@ -110,7 +110,7 @@ sub save_new_employee :Local :OnError('add') {
                 push @found_skills, $new_skill->id;
     			} or do {
     				$c->response->redirect($c->uri_for('list',
-                        {mid => $c->set_status_msg("There was an error while adding the new skill to the database, please try again later.")}));
+                        {mid => $c->set_error_msg("There was an error while adding the new skill to the database, please try again later.")}));
     			}
     	}
     }
@@ -119,7 +119,7 @@ sub save_new_employee :Local :OnError('add') {
         -address => $params->{email},
         -mxcheck => 1 )) {
         return $c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("The email address is not valid.")}));
+            {mid => $c->set_error_msg("The email address is not valid.")}));
     }
 
     my $date = getTime();
@@ -143,7 +143,7 @@ sub save_new_employee :Local :OnError('add') {
             }
     	} or do {
     		$c->response->redirect($c->uri_for('list',
-                {mid => $c->set_status_msg("There was an error while saving the new employee, please try again later.")}));
+                {mid => $c->set_error_msg("There was an error while saving the new employee, please try again later.")}));
     	};
 
         $c->response->redirect($c->uri_for('list',
@@ -180,7 +180,7 @@ sub edit :Local {
 
 	} else {
 		$c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("No employee found with this id.")}));
+            {mid => $c->set_error_msg("No employee found with this id.")}));
 	}
 
 }
@@ -206,7 +206,7 @@ sub update :Local :OnError('edit') {
                 push @found_skills, $new_skill->id;
                 } or do {
                     $c->response->redirect($c->uri_for('list',
-                        {mid => $c->set_status_msg("There was an error while adding the new skill to the database, please try again later.")}));
+                        {mid => $c->set_error_msg("There was an error while adding the new skill to the database, please try again later.")}));
                 }
         }
     }
@@ -215,7 +215,7 @@ sub update :Local :OnError('edit') {
         -address => $params->{email},
         -mxcheck => 1 )) {
         return $c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("The email address is not valid.")}));
+            {mid => $c->set_error_msg("The email address is not valid.")}));
     }
 
     unless ( $params->{skills} ) {
@@ -244,7 +244,7 @@ sub update :Local :OnError('edit') {
 
     } or do {
     	$c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("There was an error while updating the employee, please try again later.")}));
+            {mid => $c->set_error_msg("There was an error while updating the employee, please try again later.")}));
     };
 
     
@@ -264,11 +264,11 @@ sub delete :Local :Args(1) {
                 })->delete;
         } or do {
             $c->response->redirect($c->uri_for('list',
-                {mid => $c->set_status_msg("There was an error while deleting the employee, please try again later.")}));
+                {mid => $c->set_error_msg("There was an error while deleting the employee, please try again later.")}));
         }
     } else {
         $c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("No employee found with this id.")}));
+            {mid => $c->set_error_msg("No employee found with this id.")}));
     }
 
     $c->response->redirect($c->uri_for('list',
@@ -301,7 +301,7 @@ sub delete_project :Local :Args(1) {
             {mid => $c->set_status_msg("Project deleted from employee.")}));
     } or do {
         return $c->response->redirect($c->uri_for('edit', $id,
-            {mid => $c->set_status_msg("There was an error while deleting the project from employee, please try again later.")}));
+            {mid => $c->set_error_msg("There was an error while deleting the project from employee, please try again later.")}));
     }
     
     

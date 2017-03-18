@@ -72,7 +72,9 @@ sub index :Path :Args(0) {
 
     # will show current sprint status
     my @sprints = $c->model("DB::Sprint")->search(
-        {},
+        {
+            manager_id => $c->user->id,
+        },
         {
             join => "sprint_team",
             select => ['sprint_team.name', 'me.end_date', { max => 'me.end_date' } ],
