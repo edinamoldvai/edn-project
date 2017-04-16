@@ -33,8 +33,38 @@
 			<a href="[% c.uri_for(c.controller.action_for('delete_project'), id) %]">Delete</a>
 		<br>
 		<label for="skills">Skills</label><br>
-	    <input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]">
+		<select class="selectpicker" name="skills" id="skills" multiple>
+			[% FOREACH key IN skills.keys.sort -%]
+				<option>[% key %]</option>
+			[% END -%]
+		</select>
+<!-- 		<input class="tagsinput-typeahead" type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]"/> -->
 	    <br>
+	    <br>
+	    <label>Performance History</label>
+	    <div class="table-responsive">          
+			<table class="table">
+			    <thead>
+			      <tr>
+			        <th>Project</th>
+			        <th>Sprint</th>
+			        <th>Story Points</th>
+			      </tr>
+			    </thead>
+			        <tbody>
+				      
+				        [% FOREACH key IN performance.keys.sort -%]
+				        <tr>
+							<td>[% performance.$key.project %]</td>
+							<td>[% performance.$key.sprint %]</td>
+							<td>[% performance.$key.velocity %]</td>
+						</tr>
+						[% END -%]
+				      
+				   	</tbody>
+			</table>
+			<br>
+			</div>
 		<br>
 		<input type="submit"></input>
 		<a href="[% c.uri_for('list') %]">Cancel</a>
@@ -45,4 +75,55 @@
 $( "#department" ).val( "[% department %]" );
 $( "#project" ).val( "[% project %]" );
 $( "#roles" ).val( "[% role %]" );
+// $( "#skills" ).val( "[% skills_emp %]" );
 </script>
+<script type="text/javascript">
+$(function() {
+    // $('#skills').multiselect({
+    //     includeSelectAllOption: true
+    // });
+
+    $('#skills').multiselect({
+	    selectAllValue: 'multiselect-all',
+	    enableCaseInsensitiveFiltering: true,
+	    enableFiltering: true,
+	    maxHeight: '300',
+	    buttonWidth: '235',
+	    onChange: function(element, checked) {
+	        var brands = $('#skills option:selected');
+	        var selected = "[% skills_emp %]";
+	        $(brands).each(function(index, brand){
+	            selected.push([$(this).val()]);
+	        });
+	    }
+	});
+    
+});
+</script>
+<!-- <script type="text/javascript">
+var skill = [];
+[% FOREACH key IN skills.keys.sort -%]
+	skill.push({ name: [% skills.$key %] });
+[% END -%]
+// $('.tagsinput-typeahead').tagsinput({
+//   typeahead: {
+//     // source: skill.map(function(item) { return item.name }),
+//     source: ['Cluj','Marghita','Oradea'],
+//     afterSelect: function() {
+//     	this.$element[0].value = '';
+//     },
+//   }
+// }) 
+
+$('.tagsinput-typeahead').tagsinput({
+      typeahead: {
+        // source: skill.map(function(item) { return item.name }),
+        source: "[% skills %]",
+        afterSelect: function() {
+	    	this.$element[0].value = '';
+	    },
+      }
+    });
+alert(skill);
+
+</script> -->

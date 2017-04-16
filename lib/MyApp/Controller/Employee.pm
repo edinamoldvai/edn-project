@@ -85,6 +85,7 @@ sub add :Local {
         departments => \%departments,
         projects => \%projects,
         roles => \%roles,
+        skills => \%reverse_skills,
         template => 'employee/add.tt2'
         });
 }
@@ -94,11 +95,12 @@ sub save_new_employee :Local :OnError('add') {
 
     my $params = $c->req->params;
 
-    my @words = split /,/, $params->{skills};
-
+    my @words = @{$params->{skills}};
+    warn Data::Dumper::Dumper($params->{skills});
     my @found_skills;
     my $new_skill;
    	foreach my $skill (@words) {
+        warn Data::Dumper::Dumper($skill);
         $skill =~ s/^\s+|\s+$//g;
     	if ($reverse_skills{$skill}) {
     		push @found_skills, $reverse_skills{$skill};
@@ -160,8 +162,12 @@ sub edit :Local {
 
 	my $employee = $c->model('DB::Employee')->find($id);
     my %skills_for_employee = $self->get_skill($c, $id);
-    my $scal = join(", ", map { "$skills_for_employee{$_}" } keys %skills_for_employee);
-
+    my %reverse_skills_for_employee = reverse %skills_for_employee;
+    warn Data::Dumper::Dumper(\%reverse_skills_for_employee);
+    warn Data::Dumper::Dumper(\%reverse_skills);
+    # my @array = values %skills_for_employee;
+    # warn Data::Dumper::Dumper(@array);
+    my $data = $self->show_history($c, $id);
 	if ($employee) {
 		
 		$c->stash({
@@ -172,10 +178,12 @@ sub edit :Local {
 			department => $departments{$employee->department->id},
 			project => $projects{$employee->project_id},
             role => $roles{$employee->role_id},
-			skills => $scal,
+			skills => \%reverse_skills,
+            skills_emp => \%reverse_skills_for_employee,
             departments => \%departments,
             projects => \%projects,
             roles => \%roles,
+            performance => $data
 			});
 
 	} else {
@@ -192,7 +200,7 @@ sub update :Local :OnError('edit') {
 
     my $employee = $c->model('DB::Employee')->find($params->{id});
 
-    my @words = split /,/, $params->{skills};
+    my @words = @{$params->{skills}};
     my @found_skills;
     foreach my $skill (@words) {
         $skill =~ s/^\s+|\s+$//g;
@@ -279,14 +287,10 @@ sub delete :Local :Args(1) {
 sub delete_project :Local :Args(1) {
     my ($self, $c, $id) = @_;
 
-    warn Data::Dumper::Dumper($id);
-
     my $employee = $c->model('DB::Employee')->find($id);
     my $project = $employee->team;
     my $employee_role = $employee->role->role;
 
-    warn Data::Dumper::Dumper($employee_role);
-    warn Data::Dumper::Dumper($project);
     eval {
         switch ($employee_role) {
             case "Developer" { $project->decrease_dev_filled(1)}
@@ -347,6 +351,23 @@ sub getTime {
     return $nice_timestamp;
 }
 
+sub show_history {
+    my ($self, $c, $id) = @_;
+
+    my @data = $c->model('DB::EmployeePerformance')->search(
+        {
+            employee_id => $id
+        })->all();
+
+    my $pretty_employee_data;
+    foreach my $sprint (@data) {
+        $pretty_employee_data->{$sprint->id_sprint->id}->{project} = $sprint->id_project->name;
+        $pretty_employee_data->{$sprint->id_sprint->id}->{sprint} = $sprint->id_sprint->sprint_title;
+        $pretty_employee_data->{$sprint->id_sprint->id}->{velocity} = $sprint->velocity();
+    }
+
+    return $pretty_employee_data;
+}
 =encoding utf8
 
 =head1 AUTHOR

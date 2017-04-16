@@ -1,7 +1,10 @@
 <br>
 <div class="container">
+	<b>Last sprint ended: [% last_sprint_ended %]<b>
+	<br>
+	<br>
 	<b>Upload an xlsx file</b><br>
-	<form action ="[% c.uri_for('upload') %]" method ="POST">
+	<form  enctype="multipart/form-data" action ="[% c.uri_for('upload') %]" method ="POST">
 		<input type="hidden" name="id" id="id" value="[% id %]">
 		<label class="btn btn-primary" for="my-file-selector">
 		    <input id="my-file-selector" name="file" type="file" >
@@ -16,8 +19,6 @@
 	<form action ="[% c.uri_for('save_sprint') %]" method ="Post">
 		<div class="container-fluid col-xs-6">
 		<input type="hidden" name="id" id="id" value="[% id %]">
-		<b>Last sprint ended: [% last_sprint_ended %]<b>
-		<br>
 		<br>
 		<label for="sprint_description">Sprint description</label>
 	    <textarea rows="5" name="sprint_description" class="form-control input-sm" id="sprint_description"></textarea><br>
@@ -50,6 +51,7 @@
 
 function setEndDate(iteration) {
 
+	iteration = iteration - 1;
 	$('#datepicker').change(function() {
 	  var date= this.valueAsDate;
 	  date.setDate(date.getDate() + iteration);

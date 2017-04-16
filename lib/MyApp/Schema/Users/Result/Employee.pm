@@ -197,6 +197,22 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+
+=head2 employee_performance
+
+Type: has_many
+
+Related object: L<MyApp::Schema::Result::EmployeePerformance>
+
+=cut
+
+__PACKAGE__->has_many(
+  "employee_performance",
+  "MyApp::Schema::Users::Result::EmployeePerformance",
+  { "foreign.employee_id" => "self.id_employee" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
 1;

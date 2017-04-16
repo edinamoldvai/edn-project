@@ -31,7 +31,11 @@
 			</select>
 		<br>
 		<label for="skills">Skills</label><br>
-	    <input type="text" id="skills" name="skills" data-role="tagsinput">
+	    <select class="selectpicker" name="skills" id="skills" multiple>
+			[% FOREACH key IN skills.keys.sort -%]
+				<option>[% key %]</option>
+			[% END -%]
+		</select>
 	    <br>
 		<br>
 		<input type="submit"></input>
@@ -39,3 +43,26 @@
 	</div>
 </div>
 </form>
+<script type="text/javascript">
+$(function() {
+    // $('#skills').multiselect({
+    //     includeSelectAllOption: true
+    // });
+    $('#skills').multiselect({
+    selectAllValue: 'multiselect-all',
+    enableCaseInsensitiveFiltering: true,
+    enableFiltering: true,
+    maxHeight: '300',
+    buttonWidth: '235',
+    onChange: function(element, checked) {
+        var brands = $('#skills option:selected');
+        var selected = [];
+        $(brands).each(function(index, brand){
+            selected.push([$(this).val()]);
+        });
+
+        alert(selected);
+    }
+});
+});
+</script>

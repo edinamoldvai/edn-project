@@ -60,6 +60,8 @@ __PACKAGE__->config(
         },
     },
 );
+
+# __PACKAGE__->config( uploadtmp => '/media/sf_Application/Myapp/files' );
 # __PACKAGE__->config(
 #     # Configure the view
 #     'View::HTML' => {

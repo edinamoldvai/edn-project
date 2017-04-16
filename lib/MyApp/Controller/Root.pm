@@ -79,7 +79,7 @@ sub index :Path :Args(0) {
             join => "sprint_team",
             select => ['sprint_team.name', 'me.end_date', { max => 'me.end_date' } ],
             as     => ['sprint_team_name', 'end_date', 'max_date'],
-            group_by => [ "project_id" ],
+            group_by => [ "project_id","end_date" ],
             result_class => "DBIx::Class::ResultClass::HashRefInflator",
         })->all();
     warn Data::Dumper::Dumper(\@sprints);
