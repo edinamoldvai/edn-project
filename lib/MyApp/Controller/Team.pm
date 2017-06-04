@@ -105,6 +105,7 @@ sub save_new_team :Local :Args(0) {
 	    	my $new_team = $c->model('DB::Team')->create({
 		    	name => $params->{team_name},
 		    	target_velocity => $params->{team_velocity},
+		    	price => $params->{team_price},
 		    	days_in_iteration => $params->{team_iteration},
 		    	daily_meeting => $params->{daily_meeting_time},
 		    	sprint_planning => $planning_time,
@@ -179,6 +180,7 @@ sub edit :Local {
 			id => $team->get_column("id"),
 			team_name => $team->get_column("name"),
 			team_velocity => $team->get_column("target_velocity"),
+			team_price => $team->get_column("price"),
 			team_iteration => $team->get_column("days_in_iteration"),
 			daily_meeting_time => $team->get_column("daily_meeting"),
 			planning_time => $planning_time,
@@ -279,6 +281,7 @@ sub update :Local {
 	    $current_item->update({
 	    	name => $params->{team_name},
 	    	target_velocity => $params->{team_velocity},
+	    	price => $params->{team_price},
 	    	days_in_iteration => $params->{team_iteration},
 	    	daily_meeting => $params->{daily_meeting_time},
 	    	sprint_planning => $params->{planning_time},

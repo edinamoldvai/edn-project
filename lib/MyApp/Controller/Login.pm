@@ -45,30 +45,6 @@ Login logic
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    # # Get the username and password from form
-    # my $username = $c->request->params->{email};
-    # my $password = $c->request->params->{password};
-
-    # # If the username and password values were found in form
-    # if ($username && $password) {
-    #     # Attempt to log the user in
-    #     if ($c->authenticate({ email => $username,
-    #                            password => $password  } )) {
-    #         # If successful, then let them use the application
-    #         $c->response->redirect($c->uri_for(
-    #             $c->controller('Root')->action_for('index')));
-    #         return;
-    #     } else {
-    #         # Set an error message
-    #         $c->stash(error_msg => "Wrong username or password.");
-    #     }
-    # } else {
-    #     # Set an error message
-    #     # $c->stash(error_msg => "Empty username or password.")
-    #     #     unless ($c->user_exists);
-    # }
-
-    # If either of above don't work out, send to the login page
     $c->stash(template => 'login.tt2');
 }
 
@@ -91,6 +67,8 @@ sub login :Path('/login_user') :Args(0) {
         } else {
             # Set an error message
             $c->stash(error_msg => "Wrong username or password.");
+            $c->stash(template => 'login.tt2');
+            return;
         }
     } 
 }
@@ -129,7 +107,7 @@ sub signup :Path('/signup') :Args(0) {
 
     # validate password rules
     my $password_verified = Data::Password::Check->check({'password' => $params->{password},
-        'silly_words_append' => [ 'more', 'silly', 'words', 'admin', 'Admin123' ],
+        'silly_words_append' => [ 'Parola123', 'Parola', 'Admin', 'Admin123' ],
         });
     if ($password_verified->has_errors()) {
         my $errors = $password_verified->error_list();

@@ -1,8 +1,6 @@
 package MyApp::Controller::Sprints;
 use Moose;
 use namespace::autoclean;
-use Excel::Writer::XLSX;
-use Spreadsheet::WriteExcel;
 use DateTime                   qw( );
 use DateTime::Format::Strptime qw( );
 use Spreadsheet::ParseXLSX;
@@ -61,18 +59,20 @@ sub list :Local :Args(0) {
 sub view_sprints :Local :Args(1){
 	my ($self, $c, $id) = @_;
 
+	$c->load_status_msgs;
+
 	my @sprints = $c->model("DB::Sprint")->search(
 		{
 			"me.project_id" => $id,
 		},
 		{
 			join => "sprint_team",
-			'+select' => ['sprint_team.target_velocity'],
+			'+select' => ['sprint_team.target_velocity',],
       		'+as'     => ['sprint_team_target_velocity'],
 			order_by => { "-desc" => "end_date" },
 			result_class => "DBIx::Class::ResultClass::HashRefInflator",
 		})->all();
-	
+	#warn Data::Dumper::Dumper(\@sprints);
 	$c->stash({
 		datapoints => \@sprints,
 		id => $id,
@@ -130,7 +130,8 @@ sub save_sprint :Local :Args(0) {
             {mid => $c->set_status_msg("Sprint successfully saved.")}));
 		} or do {
 			$c->response->redirect($c->uri_for('list',
-                {mid => $c->set_error_msg("There was an error while adding the sprint to the database, please try again later.")}));
+                {mid => $c->set_error_msg("There was an error while adding the sprint to the database,
+                 please try again later.")}));
 		};
 
 
@@ -258,7 +259,6 @@ sub check_headers {
 	unless ($first_column->Value() eq "Ticket number" &&
 		$second_column->Value() eq "Story Points" &&
 		$third_column->Value() eq "Assignee") {
-
 			$success = 0;
 	} else {
 		$success = 1;
@@ -271,14 +271,14 @@ sub check_headers {
 sub read_data {
 	my ($self, $worksheet) = @_;
 
-	my ( $row_min, $row_max ) = $worksheet->col_range();
-	my ( $col_min, $col_max ) = $worksheet->row_range();
+	my ( $col_min, $col_max ) = $worksheet->col_range();
+	my ( $row_min, $row_max ) = $worksheet->row_range();
 	my $data;
-	foreach my $col (1 .. $col_max) {
-		foreach my $row ($row_min .. $row_max) {
-			my $value = $worksheet->get_cell($col, $row);
-			my $header = $worksheet->get_cell(0, $row);
-			$data->{$col}->{$header->Value()} = $value->Value();
+	foreach my $row (1 .. $row_max) {
+		foreach my $col ($col_min .. $col_max) {
+			my $value = $worksheet->get_cell($row, $col);
+			my $header = $worksheet->get_cell(0, $col);
+			$data->{$row}->{$header->Value()} = $value->Value();
 		}
 	}
 	return $data;
@@ -382,11 +382,58 @@ sub register_employee_performance {
 		}
 		or do {
 			$c->response->redirect($c->uri_for('list',
-                 {mid => $c->set_error_msg("There was an error while adding the sprint to the database, please try again later.")}));
+                 {mid => $c->set_error_msg("There was an error while adding the sprint to the database,
+                  please try again later.")}));
 		};
 		
 	}
 	
+}
+
+sub invoice :Local :Args(1) {
+	my ($self, $c, $id) = @_;
+
+	my $data = $c->model("DB::Sprint")->search(
+		{
+			"me.id" => $id,
+		},
+		{
+			join => "sprint_team",
+			'+select' => ['sprint_team.name','sprint_team.id','sprint_team.price'],
+      		'+as'     => ['project_name','project_id','project_price'],
+			result_class => "DBIx::Class::ResultClass::HashRefInflator",
+		})->first();
+
+	$c->stash({
+		project_id => $data->{project_id},
+		data => $data,
+		template => "sprints/invoice.tt2"
+		});
+}
+
+sub send_to_accounting :Local {
+	my ($self, $c) = @_;
+
+	my $to = $c->req->params->{email};
+	my $from = "m_edina_92\@yahoo.com";
+	my $subject = "Invoice for ".$c->req->params->{project_name};
+
+ 	my $mailprog  = "/usr/sbin/sendmail -t -odb";
+
+        open( MAIL, "|$mailprog" );
+        print MAIL "From: ".$from." \n";
+        print MAIL "To: ".$to." \n";
+        print MAIL "Subject: $subject \n";
+        print MAIL "Content-Type: text/plain; charset='iso-8859-1';\n";
+        print MAIL "Content-Transfer-Encoding: 7bit\n\n";
+        print MAIL $subject;
+        print MAIL "\nClient: ".$c->req->params->{project_name}.
+        		   "\nUnits: ".$c->req->params->{project_units}.
+        		   "\nPrice per unit: ".$c->req->params->{project_price};
+        close( MAIL );
+
+    $c->response->redirect($c->uri_for('view_sprints',$c->req->params->{project_id},
+        	{mid => $c->set_status_msg("Mail sent to the Accounting Team.")}));	
 }
 =encoding utf8
 

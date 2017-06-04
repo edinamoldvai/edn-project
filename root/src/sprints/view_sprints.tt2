@@ -8,6 +8,7 @@
 	<br><br><br>
 	[% FOREACH key IN sprints -%]
 		<a href="#" name="skill" id="skill" class="list-group-item">[% key.sprint_title %]</a>
+		<a href="[% c.uri_for(c.controller.action_for('invoice'), key.id) %]" name="invoice" id="invoice" class="list-group-item">Invoice</a>
 		  <div class="progress">
 		    <div class="progress-bar progress-bar-striped active" id="progressbar" role="progressbar" aria-valuenow="[% key.velocity %]" aria-valuemin="0" aria-valuemax="[% key.sprint_team_target_velocity %]" ></div>
 		  </div>

@@ -6,6 +6,8 @@
     <input type="text" name="team_name" class="form-control input-sm" id="team_name" required><br>
     <label for="team_velocity" class="text-left" data-toggle="tooltip" data-placement="right" title="Velocity measures how much functionality a team delivers in a sprint.">Target velocity</label>
     <input type="number" min="0" name="team_velocity" class="form-control input-sm" id="team_velocity"><br>
+    <label for="team_price" class="text-left" data-toggle="tooltip" data-placement="right" title="Price per story point.">Price per story point</label>
+    <input type="number" min="0" name="team_price" class="form-control input-sm" id="team_price"><br>
     <label for="team_iteration" class="text-left" data-toggle="tooltip" data-placement="right" title="During each sprint, a team creates a potentially shippable product increment, no matter how basic that product is. Most of teams work in one-week or two-week sprints.">Days in iteration</label>
     <input type="number" min="0" name="team_iteration" class="form-control input-sm" id="team_iteration"><br>
     <label for="timepicker1" class="text-left" data-toggle="tooltip" data-placement="right" title="The daily Scrum meeting is a short everyday meeting, ideally during start of the working day. Each team member who works towards the completion of a given sprint needs to participate. The daily Scrum meeting should ideally not last more than 15 minutes. Issues or concerns ought to be recorded by the Scrum Master and needs to be specifically handled after the meeting.">Daily scrum meeting</label>

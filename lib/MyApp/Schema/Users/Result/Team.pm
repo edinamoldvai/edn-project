@@ -120,6 +120,11 @@ __PACKAGE__->table("Teams");
   data_type: 'integer'
   is_nullable: 1
 
+=head2 price
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -152,6 +157,8 @@ __PACKAGE__->add_columns(
   "dev_filled",
   { data_type => "integer", is_nullable => 1 },
   "qa_filled",
+  { data_type => "integer", is_nullable => 1 },
+  "price",
   { data_type => "integer", is_nullable => 1 },
 );
 
