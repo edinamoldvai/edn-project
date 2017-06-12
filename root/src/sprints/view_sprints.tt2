@@ -1,14 +1,17 @@
 <input type="hidden" name="id" id="id" value="[% id %]">
 <br>
 <div class="container">
+    <p class="text-primary">Ești aici: <b>Home - Listă sprinturi pentru proiectul curent</b></p>
 	<br>
-	<div id="chartContainer" style="height: 360px; width: 100%;"></div>
+<!-- 	<div id="chartContainer" style="height: 360px; width: 100%;"></div> -->
+	<canvas id="myChart" width="400" height="150"></canvas>
 	<br>
-	<a href="[% c.uri_for(('/sprints/add_sprint'), id) %]">Add a new sprint</a>
+	<button id="save-btn">Salvare ca imagine</button><br><br>
+	<a href="[% c.uri_for(('/sprints/add_sprint'), id) %]">Adaugă un sprint nou</a>
 	<br><br><br>
 	[% FOREACH key IN sprints -%]
 		<a href="#" name="skill" id="skill" class="list-group-item">[% key.sprint_title %]</a>
-		<a href="[% c.uri_for(c.controller.action_for('invoice'), key.id) %]" name="invoice" id="invoice" class="list-group-item">Invoice</a>
+		<a href="[% c.uri_for(c.controller.action_for('invoice'), key.id) %]" name="invoice" id="invoice" class="list-group-item">Vizualizează sau trimite datele</a>
 		  <div class="progress">
 		    <div class="progress-bar progress-bar-striped active" id="progressbar" role="progressbar" aria-valuenow="[% key.velocity %]" aria-valuemin="0" aria-valuemax="[% key.sprint_team_target_velocity %]" ></div>
 		  </div>
@@ -24,36 +27,80 @@
 	  $(this).text(now+'/'+max);
 	});
 </script>
-<script type="text/javascript">
-CanvasJS.addColorSet("greenShades",
-                [
-	                "#3CB371",
-	                "#90EE90",
-	                "#2F4F4F",
-	                "#008080",
-	                "#2E8B57",               
-                ]);
-var dps = [];
+<script>
+var ctx = document.getElementById("myChart").getContext('2d');
+var labels = [];
+var data = [];
 [% FOREACH key IN datapoints -%]
-	dps.push({label: "[% key.sprint_title %]", y: [% key.velocity %] });
+	labels.push("[% key.sprint_title %]");
+	data.push("[% key.velocity %]");
 [% END -%]
 
-
-var chart = new CanvasJS.Chart("chartContainer",
-	{   
-		colorSet: "greenShades",
-	    axisY:{
-	    	maximum: 150,
-	    },
-	    data: [
-	    {
-	    	type: "column",
-	    	dataPoints: dps
-	    }
-	    ],
-	    exportEnabled: true,
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: '# velocitate',
+            data: data,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+</script>
+<script>
+$("#save-btn").click(function() {
+	$("#myChart").get(0).toBlob(function(blob){
+		saveAs(blob, "chart.png")
 	});
-
-chart.render();
-
+});
 </script>

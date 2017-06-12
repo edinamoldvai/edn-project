@@ -1,5 +1,6 @@
 <br>
 <div class="container">
+	<p class="text-primary">Ești aici: <b>Home - Listă echipe</b></p>
 	<div class="list-group">
 	[% FOREACH key IN teams.keys.sort -%]
 		<a href="[% c.uri_for(c.controller.action_for('view_employees_in_team'), key) %]" name="team" id="team" class="list-group-item">[% teams.$key %]</a>

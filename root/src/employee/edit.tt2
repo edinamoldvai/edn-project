@@ -1,29 +1,30 @@
 <br>
 <div class="container">
+	<p class="text-primary">Ești aici: <b>Home - Editează angajat</b></p>
 	<form action ="[% c.uri_for('update') %]" method ="Post">
 	<div class="container-fluid col-xs-6">
 		<input type="hidden" name="id" id="id" value="[% id %]">
-		<label for="first_name">First name</label>
+		<label for="first_name">Nume</label>
 	    <input type="text" name="first_name" class="form-control input-sm" id="first_name" value="[% first_name %]" required><br>
-	    <label for="last_name">Last name</label>
+	    <label for="last_name">Prenume</label>
 	    <input type="text" name="last_name" class="form-control input-sm" id="last_name" value="[% last_name %]" required><br>
 	    <label for="email">Email</label>
 	    <input type="text" name="email" class="form-control input-sm" id="email" value="[% email %]" required><br>
-	    <label for="department">Select department</label>
+	    <label for="department">Departament</label>
 			<select class="form-control" id="department" name="department" required>
 			[% FOREACH key IN departments.keys.sort -%]
 				<option>[% departments.$key %]</option>
 			[% END -%]
 			</select>
 		<br>
-		<label for="roles">Select role</label>
+		<label for="roles">Rol</label>
 			<select class="form-control" id="roles" name="roles" required>
 			[% FOREACH key IN roles.keys.sort -%]
 				<option>[% roles.$key %]</option>
 			[% END -%]
 			</select>
 		<br>
-		<label for="project">Project</label>
+		<label for="project">Proiect</label>
 			<select class="form-control" id="project" name="project" disabled="true">
 				<option>None</option>
 			[% FOREACH key IN projects.keys.sort -%]
@@ -32,7 +33,7 @@
 			</select>
 			<a href="[% c.uri_for(c.controller.action_for('delete_project'), id) %]">Delete</a>
 		<br>
-		<label for="skills">Skills</label><br>
+		<label for="skills">Abilităţi</label><br>
 		<select class="selectpicker" name="skills" id="skills" multiple>
 			[% FOREACH key IN skills.keys.sort -%]
 				<option>[% key %]</option>
@@ -41,14 +42,14 @@
 <!-- 		<input class="tagsinput-typeahead" type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]"/> -->
 	    <br>
 	    <br>
-	    <label>Performance History</label>
+	    <label>Istoric sprinturi</label>
 	    <div class="table-responsive">          
 			<table class="table">
 			    <thead>
 			      <tr>
-			        <th>Project</th>
+			        <th>Proiect</th>
 			        <th>Sprint</th>
-			        <th>Story Points</th>
+			        <th>Story Point</th>
 			      </tr>
 			    </thead>
 			        <tbody>
@@ -66,8 +67,8 @@
 			<br>
 			</div>
 		<br>
-		<input type="submit"></input>
-		<a href="[% c.uri_for('list') %]">Cancel</a>
+		<input type="submit" value="Salvează"></input>
+		<a href="[% c.uri_for('list') %]">Renunţă</a>
 	</div>
 </div>
 </form>

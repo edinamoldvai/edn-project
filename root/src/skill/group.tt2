@@ -1,5 +1,6 @@
 <br>
 <div class="container">
+	<p class="text-primary">Ești aici: <b>Home - Listă angajaţi</b></p>
 	<div class="list-group">
 	[% FOREACH key IN employees.keys.sort -%]
 		<a href="[% c.uri_for(('/employee/edit'), key) %]" name="employee" id="employee" class="list-group-item">[% employees.$key %]</a>

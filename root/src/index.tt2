@@ -1,13 +1,13 @@
 <div class="inner cover">
 <div class="container" style="border-radius: 25px; border: solid 4px #a5ccaf; height: 150px;">
-	<h2>Hello, [% superu %]!</h2>
-	<b>Your projects are listed below</b>
+	<h2>Bine ai venit, [% superu %]!</h2>
+	<b>Găsești proiectele tale mai jos</b>
 </div>
 <br><br>
 <div class="container">
 	<ul class="list-group">
 	[% FOREACH key IN sprints.keys -%]
-		[% IF ( matches = sprints.$key.match('overdue') ) -%]
+		[% IF ( matches = sprints.$key.match('terminat') ) -%]
 		<li class="list-group-item list-group-item-danger" name="team" id="team" class="list-group-item">[% sprints.$key %]</li>
 		[% ELSE -%]
 		<li class="list-group-item list-group-item-info" name="team" id="team" class="list-group-item">[% sprints.$key %]</li>

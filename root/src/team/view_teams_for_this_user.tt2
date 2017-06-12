@@ -1,12 +1,14 @@
 <br>
 <div class="container">
-	<b><a href="add_new_team">Add a new team</a></b>
+	<p class="text-primary">Ești aici: <b>Home - Echipele mele</b></p>
+	<br><br>
+	<b><a href="add_new_team">Adaugă proiect nou</a></b>
 	<br>
 	<br>
 	<div class="list-group">
 	[% FOREACH key IN data.keys.sort -%]
 		<a href="[% c.uri_for(c.controller.action_for('edit'), key) %]" name="team" id="team" class="list-group-item">[% data.$key %]</a>
-		<a href="[% c.uri_for(c.controller.action_for('delete'), key) %]">Delete</a>
+		<a href="[% c.uri_for(c.controller.action_for('delete'), key) %]">Ștergere</a>
 	[% END -%]
 	</div>
 </div>

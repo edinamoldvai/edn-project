@@ -1,34 +1,35 @@
 <br>
 <div class="container">
-	<b>Last sprint ended: [% last_sprint_ended %]<b>
+	<p class="text-primary">Ești aici: <b>Home - Adaugă sprint</b></p>
+	<b>Ultimul sprint s-a terminat: [% last_sprint_ended %]<b>
 	<br>
 	<br>
-	<b>Upload an xlsx file</b><br>
+	<b>Încarcă fişier xlsx</b><br>
 	<form  enctype="multipart/form-data" action ="[% c.uri_for('upload') %]" method ="POST">
 		<input type="hidden" name="id" id="id" value="[% id %]">
 		<label class="btn btn-primary" for="my-file-selector">
 		    <input id="my-file-selector" name="file" type="file" >
-		    Browse file
+		    Caută
 		</label>
 		<input type="submit"></input>
 	</form>
 	<br>
-	<b>Or add a sprint manually</b>
+	<b>Sau adaugă manual</b>
 	<br><br>
 
 	<form action ="[% c.uri_for('save_sprint') %]" method ="Post">
 		<div class="container-fluid col-xs-6">
 		<input type="hidden" name="id" id="id" value="[% id %]">
 		<br>
-		<label for="sprint_description">Sprint description</label>
+		<label for="sprint_description">Descriere sprint </label>
 	    <textarea rows="5" name="sprint_description" class="form-control input-sm" id="sprint_description"></textarea><br>
 
-	    <label for="datepicker">Start date</label>
+	    <label for="datepicker">Dată început</label>
 	    <br>
 	    <input type="date" id="datepicker" name="datepicker" onblur="setEndDate([% iteration %])" required/>
 	    <br>
 		<br>
-	    <label for="datepicker_end">End date</label>
+	    <label for="datepicker_end">Dată sfârşit</label>
 	    <br>
 	    <input type="date" id="datepicker_end" name="datepicker_end" required />
 	    <br>
@@ -37,12 +38,12 @@
 		<br>
 		<input type="text" id="sprint_name" name="sprint_name" class="form-control input-sm" onclick="setName()" />
 	    <br>
-	    <label for="velocity">Sprint velocity</label>
+	    <label for="velocity">Velocitate</label>
 	    <br>
 	    <input type="number" min="0" name="velocity" id="velocity" required><br>
 	    <br>
-		<input type="submit"></input>
-		<a href="[% c.uri_for(c.controller.action_for('view_sprints'), id) %]">Cancel</a>
+		<input type="submit" value="Adaugă"></input>
+		<a href="[% c.uri_for(c.controller.action_for('view_sprints'), id) %]">Renunţă</a>
 	    </div>
 	</form>
 </div>

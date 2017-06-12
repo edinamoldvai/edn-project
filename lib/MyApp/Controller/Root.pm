@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 use DateTime                   qw( );
 use DateTime::Format::Strptime qw( );
+use utf8;
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -82,7 +83,7 @@ sub index :Path :Args(0) {
             group_by => [ "project_id","end_date" ],
             result_class => "DBIx::Class::ResultClass::HashRefInflator",
         })->all();
-    warn Data::Dumper::Dumper(\@sprints);
+
     my $format = DateTime::Format::Strptime->new(
         pattern   => '%Y-%m-%d',
         time_zone => 'local',
@@ -93,9 +94,9 @@ sub index :Path :Args(0) {
     my %mapped_sprints = map { $_->{sprint_team_name} => $format->parse_datetime($_->{max_date}) >= $ref ? 
         $_->{sprint_team_name}." - ".
         $ref->delta_days($format->parse_datetime($_->{max_date}))->in_units('days').
-        " more day(s) in current iteration" : $_->{sprint_team_name}." - Last iteration overdue",
+        " zile în sprintul curent" : $_->{sprint_team_name}." - Sprintul s-a terminat",
         } @sprints;
-    warn Data::Dumper::Dumper(\%mapped_sprints);
+
     $c->stash({
         superu => $c->user->display_name,
         sprints => \%mapped_sprints,

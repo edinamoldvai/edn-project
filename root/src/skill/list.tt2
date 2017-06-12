@@ -1,5 +1,6 @@
 <br>
 <div class="container">
+	<p class="text-primary">Ești aici: <b>Home - Listă competenţe</b></p>
 	<div class="list-group">
 	[% FOREACH key IN skills.keys.sort -%]
 		<a href="[% c.uri_for(c.controller.action_for('view_employees_with_skill'), key) %]" name="skill" id="skill" class="list-group-item">[% skills.$key %]</a>

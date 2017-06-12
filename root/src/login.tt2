@@ -2,19 +2,19 @@
 <div class="col-md-2 col-md-offset-5">
 
   <form class="form-signin" action ="[% c.uri_for('/login_user') %]" method ="Post">
-    <h2 class="form-signin-heading">Sign in</h2>
-    <label for="inputEmail" class="sr-only">Email address</label>
-    <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address" required autofocus>
-    <label for="inputPassword" class="sr-only">Password</label>
-    <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    <h2 class="form-signin-heading">Autentificare</h2>
+    <label for="inputEmail" class="sr-only">Email</label>
+    <input type="text" id="inputEmail" name="email" class="form-control" placeholder="email" required autofocus>
+    <label for="inputPassword" class="sr-only">Paolă</label>
+    <input type="password" id="inputPassword" name="password" class="form-control" placeholder="parolă" required>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Logare</button>
   </form>
   <form class="form-signin" action="[% c.uri_for('/signup') %]" method="POST">
-      <h3 class="form-signin-heading">Don't have an account? Register here</h3>
+      <h3 class="form-signin-heading">Sau crează un cont nou aici:</h3>
       <!-- Username -->
-      <label class="control-label"  for="username">Username</label>
+      <label class="control-label"  for="username">Nume utilizator</label>
       <div class="controls">
-        <input type="text" id="username" name="username" data-toggle="tooltip" data-placement="right" title="Username can contain any letters or numbers, without spaces" class="input-xlarge" value="[% form_data.username %]" required>
+        <input type="text" id="username" name="username" data-toggle="tooltip" data-placement="right" title="Numele utilizatorului poate conține doar litere, fără spații" class="input-xlarge" value="[% form_data.username %]" required>
       </div>
  
     <div class="control-group">
@@ -27,15 +27,15 @@
  
     <div class="control-group">
       <!-- Password-->
-      <label class="control-label" for="password">Password</label>
+      <label class="control-label" for="password">Parolă</label>
       <div class="controls">
-        <input type="password" id="password" name="password" data-toggle="tooltip" data-placement="right" title="Password should be at least 4 characters" class="input-xlarge" required>
+        <input type="password" id="password" name="password" data-toggle="tooltip" data-placement="right" title="Parola trebuie să aibă cel puțin 6 caractere" class="input-xlarge" required>
       </div>
     </div>
  
     <div class="control-group">
       <!-- Password -->
-     <label class="control-label"  for="password_confirm">Password (Confirm)</label>
+     <label class="control-label"  for="password_confirm">Parolă (Confirmare)</label>
       <div class="controls">
         <input type="password" id="password_confirm" name="password_confirm" class="input-xlarge" required>
       </div>
@@ -43,7 +43,7 @@
  
     <div class="control-group">
       <div class="controls">
-        <button class="btn btn-success">Register & Sign in</button>
+        <button class="btn btn-success">Creare cont & autentificare </button>
       </div>
     </div>
 </form>

@@ -1,11 +1,11 @@
 <br>
 <div class="container">
-	<b>Add members to your team :</b>
+	<p class="text-primary">Ești aici: <b>Home - Adaugă membri</b></p>
 	<br>
 	<div class="row">
-    <div class="col-sm-4" style="background-color:lavenderblush;">BA <span class="badge">[% no_of_ba %]</span></div>
-    <div class="col-sm-4" style="background-color:lavenderblush;">Developer <span class="badge">[% no_of_dev %]</span></div>
-    <div class="col-sm-4" style="background-color:lavenderblush;">QA <span class="badge">[% no_of_qa %]</div>
+    <div class="col-sm-4" style="background-color:lavenderblush;">Număr analişti afaceri <span class="badge">[% no_of_ba %]</span></div>
+    <div class="col-sm-4" style="background-color:lavenderblush;">Număr dezvoltatori <span class="badge">[% no_of_dev %]</span></div>
+    <div class="col-sm-4" style="background-color:lavenderblush;">Număr testeri <span class="badge">[% no_of_qa %]</div>
   	</div>
   	<div>
   	<b>Skills to cover:<b><br>
@@ -17,7 +17,7 @@
 	<br>
 	<div class="list-group" >
 	<input type="hidden" name="id" id="id" value="[% id %]">
-	<b>Available BAs :</b>
+	<b>Analişti afaceri :</b>
 	<ul>
 	[% FOREACH key IN bas.keys.sort -%]
 		<li name="employee" id="employee" class="list-group-item">[% bas.$key %]</li>
@@ -25,7 +25,7 @@
 		<a href="[% c.uri_for(c.controller.action_for('add_to_team'), id, key) %]">Add to team</a>
 	[% END -%]
 	</ul>
-	<b>Available Devs :</b>
+	<b>Dezvoltatori :</b>
 	<ul>
 	[% FOREACH key IN devs.keys.sort -%]
 		<li name="employee" id="employee" class="list-group-item">[% devs.$key %]</li>
@@ -33,7 +33,7 @@
 		<a href="[% c.uri_for(c.controller.action_for('add_to_team'), id, key) %]">Add to team</a>
 	[% END -%]
 	</ul>
-	<b>Available QAs :</b>
+	<b>Testeri :</b>
 	<ul>
 	[% FOREACH key IN qas.keys.sort -%]
 		<li name="employee" id="employee" class="list-group-item">[% qas.$key %]</li>

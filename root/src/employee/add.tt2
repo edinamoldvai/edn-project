@@ -1,36 +1,37 @@
 <br>
 <div class="container">
+	<p class="text-primary">Ești aici: <b>Home - Adaugă angajat</b></p>
 	<form action ="[% c.uri_for('save_new_employee') %]" method ="Post">
 	<div class="container-fluid col-xs-6">
-		<label for="first_name">First name</label>
+		<label for="first_name">Nume</label>
 	    <input type="text" name="first_name" class="form-control input-sm" id="first_name" required><br>
-	    <label for="last_name">Last name</label>
+	    <label for="last_name">Prenume</label>
 	    <input type="text" name="last_name" class="form-control input-sm" id="last_name" required><br>
 	    <label for="email">Email</label>
 	    <input type="text" name="email" class="form-control input-sm" id="email" required><br>
-	    <label for="department">Select department</label>
+	    <label for="department">Departament</label>
 			<select class="form-control" id="department" name="department" required>
 			[% FOREACH key IN departments.keys.sort -%]
 				<option>[% departments.$key %]</option>
 			[% END -%]
 			</select>
 		<br>
-		<label for="roles">Select role</label>
+		<label for="roles">Rol</label>
 			<select class="form-control" id="roles" name="roles" required>
 			[% FOREACH key IN roles.keys.sort -%]
 				<option>[% roles.$key %]</option>
 			[% END -%]
 			</select>
 		<br>
-		<label for="project">Select project</label>
+		<label for="project">Proiect</label>
 			<select class="form-control" id="project" name="project" required>
-				<option>None</option>
+				<option>Nimic nu este selectat</option>
 			[% FOREACH key IN projects.keys.sort -%]
 				<option>[% projects.$key %]</option>
 			[% END -%]
 			</select>
 		<br>
-		<label for="skills">Skills</label><br>
+		<label for="skills">Abilităţi</label><br>
 	    <select class="selectpicker" name="skills" id="skills" multiple>
 			[% FOREACH key IN skills.keys.sort -%]
 				<option>[% key %]</option>
@@ -38,8 +39,8 @@
 		</select>
 	    <br>
 		<br>
-		<input type="submit"></input>
-		<a href="[% c.uri_for('list') %]">Cancel</a>
+		<input type="submit" value="Adaugă"></input>
+		<a href="[% c.uri_for('list') %]">Renunţă</a>
 	</div>
 </div>
 </form>

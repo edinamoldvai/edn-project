@@ -71,7 +71,7 @@ sub view_employees_with_skill :Local {
 
 	} else {
 		$c->stash({
-			error_msg => "This technical skill does not exist.",
+			error_msg => "Eroare! Încercați mai târziu.",
 			template => "skill/list.tt2"
 			});
 	}

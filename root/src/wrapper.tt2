@@ -2,8 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
@@ -26,6 +25,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+    <script src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.7.0/js/canvas-to-blob.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.7.0/js/canvas-to-blob.min.js"></script>
     
     <script>
     $(document).ready(function () {
@@ -46,41 +50,41 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/team/view_teams_for_this_user">Team</a>
+        <a class="navbar-brand" href="/team/view_teams_for_this_user">Echipele mele</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
           <li class="active"><a href="/">Home</a></li>
-          <li><a href="/sprints/list">Sprints</a></li>
+          <li><a href="/sprints/list">Sprinturi</a></li>
           <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Employees <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Angajaţi<span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="/employee/add">Add a new employee</a></li>
-                  <li><a href="/employee/list">All employees</a></li>
+                  <li><a href="/employee/add">Adăugare angajat nou</a></li>
+                  <li><a href="/employee/list">Vizualizare angajaţi</a></li>
                   <li role="separator" class="divider"></li>
-                  <li class="dropdown-header">Group by</li>
-                  <li><a href="/department/list">Department</a></li>
-                  <li><a href="/team/list">Project</a></li>
-                  <li><a href="/skill/list">Technical Skills</a></li>
+                  <li class="dropdown-header">Grupează după</li>
+                  <li><a href="/department/list">Departament</a></li>
+                  <li><a href="/team/list">Proiect</a></li>
+                  <li><a href="/skill/list">Abilităţi</a></li>
                 </ul>
           </li>
           <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Proiecte <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="/team/add_new_team">Add a new team</a></li>
-                  <li><a href="/team/view_teams_for_this_user">View teams</a></li>
+                  <li><a href="/team/add_new_team">Adăugare proiect nou</a></li>
+                  <li><a href="/team/view_teams_for_this_user">Vizualizare proiecte</a></li>
                 </ul>
           </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
         <li><a href="#">
         [% IF c.user_exists %]
-        Welcome, [% c.user.display_name %]!
+        Bine ai venit, [% c.user.display_name %]!
         </a></li>
         <li>
         <a href="[% c.uri_for('/logout') %]">Logout</a></li>
           [% ELSE %]
-              You need to log in to use this application.
+              Trebuie să te autentifici.
           [% END %]
         </ul>
       </div><!--/.nav-collapse -->

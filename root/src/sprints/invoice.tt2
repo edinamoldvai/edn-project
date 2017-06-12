@@ -1,18 +1,23 @@
 
 <br>
 	<div class="container">
+    <p class="text-primary">Ești aici: <b>Home - Trimite datele sprintului</b></p>
 	<form action ="[% c.uri_for('send_to_accounting') %]" method ="Post">
     <div class="container-fluid col-xs-6">
     <input type="hidden" name="project_id" id="project_id" value="[% data.project_id %]">
     <input type="hidden" name="project_name" id="project_name" value="[% data.project_name %]">
     <input type="hidden" name="project_units" id="project_units" value="[% data.velocity %]">
     <input type="hidden" name="project_price" id="project_price" value="[% data.project_price %]">
+    <input type="hidden" name="project_velocity" id="project_velocity" value="[% data.project_velocity %]">
+    <input type="hidden" name="start" id="start" value="[% data.start_date %]">
+    <input type="hidden" name="end" id="end" value="[% data.end_date %]">
     <b>Client: [% data.project_name %]</b><br><br>
-    <b>Units: [% data.velocity %]</b><br><br>
-    <b>Price per unit: [% data.project_price %]</b><br><br>
+    <b>Unități: [% data.velocity %]</b><br><br>
+    <b>Unități propuse: [% data.project_velocity %]</b><br><br>
+    <b>Preț unitar: [% data.project_price %]</b><br><br>
     <label for="email">Email:</label><br>
-    <input type="text" name="email" id="email"></input><br>
-    <input type="submit"></input>
+    <input type="text" name="email" id="email"></input><br><br>
+    <input type="submit" value="Trimite"></input>
     </div>
     </form>
     </div>

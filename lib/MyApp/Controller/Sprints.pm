@@ -4,6 +4,7 @@ use namespace::autoclean;
 use DateTime                   qw( );
 use DateTime::Format::Strptime qw( );
 use Spreadsheet::ParseXLSX;
+use utf8;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -127,11 +128,10 @@ sub save_sprint :Local :Args(0) {
 			velocity => $params->{velocity}
 			});
 		return $c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("Sprint successfully saved.")}));
+            {mid => $c->set_status_msg("Sprint salvat.")}));
 		} or do {
 			$c->response->redirect($c->uri_for('list',
-                {mid => $c->set_error_msg("There was an error while adding the sprint to the database,
-                 please try again later.")}));
+                {mid => $c->set_error_msg("Eroare, încearcă mai târziu.")}));
 		};
 
 
@@ -143,7 +143,7 @@ sub upload :Local {
     my $params = $c->req->params();
 
     if (!$c->req->upload('file')) {
-        $c->stash( error_msg => 'There is no file chosen to upload!');
+        $c->stash( error_msg => 'Nu este selectat nimic!');
         $c->go("add_sprint", [$params->{id}]);
         return;
     }
@@ -157,12 +157,12 @@ sub upload :Local {
     	$upload->copy_to("/media/sf_Application/MyApp/files");
     	process_xslx($self,$c,$filename,$params->{id});
     } else {
-    	$c->stash( error_msg => 'Not an .xlsx file!');
+    	$c->stash( error_msg => 'Nu este .xlsx!');
         $c->go("add_sprint", [$params->{id}]);
         return;
     }
 
-    $c->stash(status_msg => 'File successfully uploaded!');
+    $c->stash(status_msg => 'Fişier încărcat!');
     $c->go("add_sprint", [$params->{id}]);
 }
 
@@ -175,14 +175,14 @@ sub process_xslx {
 	my $workbook = $parser->parse($path_to_file);
 	my $worksheet = $workbook->worksheet('Sheet1');
 	unless ($worksheet) {
-			$c->stash( error_msg => "Sheet1 can't be found!");
+			$c->stash( error_msg => "Sheet1 nu există!");
 	        $c->go("add_sprint", [$id]);
 	        return;
 	    }
 
 	my $metadata_sheet = $workbook->worksheet('Sheet2');
 	unless ($metadata_sheet) {
-			$c->stash( error_msg => "Sheet2 can't be found!");
+			$c->stash( error_msg => "Sheet2 nu există!");
 	        $c->go("add_sprint", [$id]);
 	        return;
 	    }
@@ -190,7 +190,7 @@ sub process_xslx {
 	my $has_headers = $self->check_headers($worksheet);
 	my $data = $self->read_data($worksheet);
 	unless ($data) {
-			$c->stash( error_msg => "Sheet1 doesn't contain enough information!");
+			$c->stash( error_msg => "Sheet1 nu conţine destule informaţii!");
 	        $c->go("add_sprint", [$id]);
 	        return;
 	    }
@@ -209,7 +209,7 @@ sub process_xslx {
 		$end_date =~ /^\d{4}-\d\d-\d\d$/;
 
 		unless ($start_date && $end_date) {
-			$c->stash( error_msg => "Dates not defined!");
+			$c->stash( error_msg => "Nu se găsesc datele!");
 	        $c->go("add_sprint", [$id]);
 	        return;
 	    }
@@ -230,7 +230,7 @@ sub process_xslx {
 	foreach my $key (keys %{$data}) {
 		my $employee_id = $self->check_if_employee_exists($c, $data->{$key}->{Assignee}, $id);
 		unless ($employee_id) {
-			$c->stash( error_msg => "One of the employees doesn't exist in the system for this project!");
+			$c->stash( error_msg => "Angajatul nu lucrează pe acest proiect!");
 	        $c->go("add_sprint", [$id]);
 	        return;
 	    }
@@ -349,13 +349,13 @@ sub check_if_dates_correct {
     	my $end_date_exists = $self->parser->parse_datetime($date_already_logged->{end_date});
     	#start date has to be bigger than any other date already logged
     	if(DateTime->compare($start_date,$end_date_exists) < 0){
-    		$c->stash(error_msg => 'Sprint overlaps are forbidden!');
+    		$c->stash(error_msg => 'Sprinturile se suprapun!');
         	$c->go("add_sprint", [$id]);
     	}
     }
 
     if(DateTime->compare($start_date,$end_date) > 0){
-        $c->stash(error_msg => 'Start date should be earlier than end date');
+        $c->stash(error_msg => 'Data de început trebuie să fie înainte de data de sfârșit');
         $c->go("add_sprint", [$id]);
     }
 }
@@ -382,8 +382,7 @@ sub register_employee_performance {
 		}
 		or do {
 			$c->response->redirect($c->uri_for('list',
-                 {mid => $c->set_error_msg("There was an error while adding the sprint to the database,
-                  please try again later.")}));
+                 {mid => $c->set_error_msg("Eroare, încearcă mai târziu.")}));
 		};
 		
 	}
@@ -399,11 +398,11 @@ sub invoice :Local :Args(1) {
 		},
 		{
 			join => "sprint_team",
-			'+select' => ['sprint_team.name','sprint_team.id','sprint_team.price'],
-      		'+as'     => ['project_name','project_id','project_price'],
+			'+select' => ['sprint_team.name','sprint_team.id','sprint_team.price','sprint_team.target_velocity'],
+      		'+as'     => ['project_name','project_id','project_price','project_velocity'],
 			result_class => "DBIx::Class::ResultClass::HashRefInflator",
 		})->first();
-
+	warn Data::Dumper::Dumper($data);
 	$c->stash({
 		project_id => $data->{project_id},
 		data => $data,
@@ -416,7 +415,7 @@ sub send_to_accounting :Local {
 
 	my $to = $c->req->params->{email};
 	my $from = "m_edina_92\@yahoo.com";
-	my $subject = "Invoice for ".$c->req->params->{project_name};
+	my $subject = "Datele sprintului pentru ".$c->req->params->{project_name};
 
  	my $mailprog  = "/usr/sbin/sendmail -t -odb";
 
@@ -428,12 +427,18 @@ sub send_to_accounting :Local {
         print MAIL "Content-Transfer-Encoding: 7bit\n\n";
         print MAIL $subject;
         print MAIL "\nClient: ".$c->req->params->{project_name}.
-        		   "\nUnits: ".$c->req->params->{project_units}.
-        		   "\nPrice per unit: ".$c->req->params->{project_price};
+        		   "\nPerioada: ".$c->req->params->{start}." - ".$c->req->params->{end}.
+        		   "\nUnități: ".$c->req->params->{project_units}.
+        		   "\nUnități propuse: ".$c->req->params->{project_velocity}.
+        		   "\nPreț unitar: ".$c->req->params->{project_price}.
+        		   "\nValoare totală: ".($c->req->params->{project_price}+0 ) * ($c->req->params->{project_units}+0).
+        		   "\nDeficit/Excedent: ".( ($c->req->params->{project_price}+0 ) * ($c->req->params->{project_units}+0) -
+        		   						($c->req->params->{project_velocity}+0 ) * ($c->req->params->{project_price}+0))
+        		   ;
         close( MAIL );
 
     $c->response->redirect($c->uri_for('view_sprints',$c->req->params->{project_id},
-        	{mid => $c->set_status_msg("Mail sent to the Accounting Team.")}));	
+        	{mid => $c->set_status_msg("Email trimis.")}));	
 }
 =encoding utf8
 

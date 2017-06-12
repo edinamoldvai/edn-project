@@ -60,7 +60,7 @@ sub save_new_team :Local :Args(0) {
 
     if ($team_name_already_exists) {
 	        $c->response->redirect($c->uri_for('view_teams_for_this_user',
-            	{mid => $c->set_error_msg("A team with this name already exists. Please choose another name.")}));
+            	{mid => $c->set_error_msg("Acest nume este deja folosit de un alt proiect.")}));
     } else {
 
 		unless ($params->{daily_meeting_time} =~ m/(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)(am|pm)/ 
@@ -69,7 +69,7 @@ sub save_new_team :Local :Args(0) {
 	    	or $params->{planning_day} =~ m/^((Monday)|(Tuesday)|(Wednesday)|(Thursday)|(Friday))$/
 	    	or $params->{retrospective_day} =~ m/^((Monday)|(Tuesday)|(Wednesday)|(Thursday)|(Friday))$/) {
 		    	$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            		{mid => $c->set_error_msg("One of the date/time validations doesn't pass.")}));
+            		{mid => $c->set_error_msg("Datele calendaristice nu sunt valide.")}));
 	    };    
 
 	    my $planning_time = $params->{planning_time}.",".$params->{planning_day};
@@ -96,7 +96,7 @@ sub save_new_team :Local :Args(0) {
 	                push @found_skills, $new_skill->id;
 	    			} or do {
 	    				$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            				{mid => $c->set_error_msg("There was an error while adding the new skill to the database, please try again later.")}));
+            				{mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
 	    			}
 	    	}
 	    }
@@ -124,12 +124,12 @@ sub save_new_team :Local :Args(0) {
 	            }
 
 	            return $c->response->redirect($c->uri_for('view_teams_for_this_user',
-            		{mid => $c->set_status_msg("The team is saved successfully.")}));
+            		{mid => $c->set_status_msg("Echipa salvată.")}));
 
 	        } or do {
 	        	warn Data::Dumper::Dumper(@$);
 	    		$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            		{mid => $c->set_error_msg("There was an error while saving the new employee, please try again later.")}));	
+            		{mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));	
 	    	};
 	    	
 	    	
@@ -150,15 +150,15 @@ sub delete :Local :Args(1) {
                 })->delete_all();
         } or do {
             $c->response->redirect($c->uri_for('view_teams_for_this_user',
-                {mid => $c->set_error_msg("There was an error while deleting the project, please try again later.")}));
+                {mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
         }
     } else {
         $c->response->redirect($c->uri_for('view_teams_for_this_user',
-            {mid => $c->set_error_msg("No project found with this id.")}));
+            {mid => $c->set_error_msg("Nu există proiect cu acest id.")}));
     }
 
     $c->response->redirect($c->uri_for('view_teams_for_this_user',
-        {mid => $c->set_status_msg("Project deleted.")}));
+        {mid => $c->set_status_msg("Proiect șters.")}));
 }
 
 sub edit :Local {
@@ -196,7 +196,7 @@ sub edit :Local {
 		warn Data::Dumper::Dumper($c->stash);
 	} else {
 		$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            {mid => $c->set_error_msg("This team doesn't exist.")}));	
+            {mid => $c->set_error_msg("Acest proiect nu există.")}));	
 	    	
 	}
 
@@ -237,7 +237,7 @@ sub update :Local {
     if ($team_name_already_exists) {
 
 		$c->response->redirect($c->uri_for('view_teams_for_this_user',
-        	{mid => $c->set_error_msg("A team with this name already exists. Please choose another name.")}));	
+        	{mid => $c->set_error_msg("Acest nume este deja folosit.")}));	
 
     } else {
 
@@ -247,7 +247,7 @@ sub update :Local {
 	    	or $params->{planning_day} =~ m/^((Monday)|(Tuesday)|(Wednesday)|(Thursday)|(Friday))$/
 	    	or $params->{retrospective_day} =~ m/^((Monday)|(Tuesday)|(Wednesday)|(Thursday)|(Friday))$/) {
 		    	$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            		{mid => $c->set_error_msg("One of the date/time validations doesn't pass.")}));
+            		{mid => $c->set_error_msg("Datele calendaristice nu sunt valide.")}));
 	    };    
 
 	    my $planning_time = $params->{planning_time}.",".$params->{planning_day};
@@ -273,7 +273,7 @@ sub update :Local {
 	                push @found_skills, $new_skill->id;
 	               } or do {
 	                    $c->response->redirect($c->uri_for('view_teams_for_this_user',
-            				{mid => $c->set_error_msg("There was an error while adding the new skill to the database, please try again later.")}));
+            				{mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
 	               }
 	    	}
 	    }
@@ -299,7 +299,7 @@ sub update :Local {
             };
 
 	    $c->response->redirect($c->uri_for('view_teams_for_this_user',
-           {mid => $c->set_status_msg("The team is successfully updated.")}));
+           {mid => $c->set_status_msg("Proiect salvat.")}));
 	               
 	}
 
@@ -358,7 +358,7 @@ sub view_employees_in_team :Local {
 
 	} else {
 		$c->stash({
-			error_msg => "This team does not exist.",
+			error_msg => "Acest proiect nu există.",
 			template => "team/list.tt2"
 			});
 	}
@@ -473,11 +473,11 @@ sub add_to_team :Local {
 			# $project
 		} or do {
 			$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            	{mid => $c->set_error_msg("There was an error while adding the employee to the project, please try again later.")}));
+            	{mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
 		}
 	} else {
 		$c->response->redirect($c->uri_for('view_teams_for_this_user',
-            {mid => $c->set_error_msg("This project or employee does not exist in the database.")}));
+            {mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
 	}
 
 	my $mail = send_mail($self,$c,$employee,$project);
@@ -485,7 +485,7 @@ sub add_to_team :Local {
 	warn Data::Dumper::Dumper($mail);
 
 	return $c->response->redirect($c->uri_for('add_members', $id_project,
-        {mid => $c->set_status_msg("The team is successfully updated.")})) if $mail;
+        {mid => $c->set_status_msg("Proiect salvat.")})) if $mail;
 	
 }
 

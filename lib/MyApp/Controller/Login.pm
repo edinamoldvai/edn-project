@@ -11,6 +11,7 @@ use Catalyst qw/
 use Email::Valid;
 use Crypt::PBKDF2;
 use Data::Password::Check;
+use utf8;
 BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
@@ -66,7 +67,7 @@ sub login :Path('/login_user') :Args(0) {
             return;
         } else {
             # Set an error message
-            $c->stash(error_msg => "Wrong username or password.");
+            $c->stash(error_msg => "Nume utilizator sau parola greșită.");
             $c->stash(template => 'login.tt2');
             return;
         }
@@ -80,9 +81,16 @@ sub signup :Path('/signup') :Args(0) {
 
     # validate all params
     unless ($params->{username} && $params->{email} && $params->{password} && $params->{password_confirm}) {
-        $c->stash(error_msg => "All the fields are mandatory!");
+        $c->stash(error_msg => "Toate câmpurile sunt obligatorii!");
         $c->stash(form_data => $params);
         $c->stash(template => 'login.tt2');
+    }
+
+    unless ($params->{username} =~ /^[a-zA-Z]{6,30}$/){
+        $c->stash(error_msg => "Numele utilizator trebuie să aibă minim 6 litere!");
+        $c->stash(form_data => $params);
+        $c->stash(template => 'login.tt2');
+        return;
     }
 
     # validate email address 
@@ -90,7 +98,7 @@ sub signup :Path('/signup') :Args(0) {
         -address => $params->{email},
         -mxcheck => 1 );
     unless ($valid_email) {
-        $c->stash(error_msg => "The email is not valid!");
+        $c->stash(error_msg => "Adresa email nu este validă!");
         $c->stash(form_data => $params);
         $c->stash(template => 'login.tt2');
         return;
@@ -99,7 +107,7 @@ sub signup :Path('/signup') :Args(0) {
     # validate password confirm
     my $password_confirmed = $params->{password} eq $params->{password_confirm} ? 1 : 0;
     unless ($password_confirmed) {
-        $c->stash(error_msg => "The passwords don't match." );
+        $c->stash(error_msg => "Parolele sunt greșite." );
         $c->stash(form_data => $params);
         $c->stash(template => 'login.tt2');
         return;
@@ -110,8 +118,21 @@ sub signup :Path('/signup') :Args(0) {
         'silly_words_append' => [ 'Parola123', 'Parola', 'Admin', 'Admin123' ],
         });
     if ($password_verified->has_errors()) {
+
+        my $dictionary = {
+            "The password must be at least 6 characters" => "Parola trebuie să conțină cel puțin 6 caractere",
+            "Your password must contain a mixture of lower and upper-case letters" => "Parola trebuie să conțină o combinație de litere mari și mici",
+            "You may not use \'$params->{password}\' as your password" => "Nu se permite folosirea parolei: $params->{password}",
+        };
+        my $errors_string;
+        my @errors_array;
         my $errors = $password_verified->error_list();
-        my $errors_string = join('. ', @{$errors});
+
+        foreach my $error (@$errors){
+            my $translated = $dictionary->{$error};
+            push @errors_array, $translated;
+        }
+        $errors_string = join('. ', @errors_array);
         $c->stash(error_msg => $errors_string );
         $c->stash(form_data => $params);
         $c->stash(template => 'login.tt2');
@@ -143,7 +164,7 @@ sub signup :Path('/signup') :Args(0) {
                 password => $hashed_password
                 });
             } or do {
-                $c->stash(error_msg => "There was an error while creating the user, please data and try again.");
+                $c->stash(error_msg => "Eroare! Încercați mai târziu.");
                 $c->stash(form_data => $params);
                 $c->stash(template => 'login.tt2');
             };
@@ -158,14 +179,14 @@ sub signup :Path('/signup') :Args(0) {
                     return;
                 } else {
                     # Set an error message if the user can'tlog in
-                    $c->stash(error_msg => "The user couldn't log in, please try again later.");
+                    $c->stash(error_msg => "ThEroare! Încercați mai târziu.");
                     $c->stash(form_data => $params);
                     $c->stash(template => 'login.tt2');
                 }
             }
             
     } else {
-        $c->stash(error_msg => "A user with this email address already exists.");
+        $c->stash(error_msg => "Alt utilizator cu acest email deja există.");
         $c->stash(form_data => $params);
         $c->stash(template => 'login.tt2');
     }

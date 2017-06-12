@@ -76,7 +76,7 @@ sub view_employees_in_department :Local {
 
 	} else {
 		$c->stash({
-			error_msg => "This department does not exist.",
+			error_msg => "Acest departament nu există.",
 			template => "department/list.tt2"
 			});
 	}

@@ -7,6 +7,7 @@ extends 'Catalyst::View::TT';
 __PACKAGE__->config(
     # Change default TT extension
     TEMPLATE_EXTENSION => '.tt2',
+    ENCODING => 'UTF-8',
     # Set the location for TT files
     INCLUDE_PATH => [
             MyApp->path_to( 'root', 'src' ),
