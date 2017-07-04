@@ -7,10 +7,10 @@
 <div class="container">
 	<ul class="list-group">
 	[% FOREACH key IN sprints.keys -%]
-		[% IF ( matches = sprints.$key.match('terminat') ) -%]
-		<li class="list-group-item list-group-item-danger" name="team" id="team" class="list-group-item">[% sprints.$key %]</li>
-		[% ELSE -%]
+		[% IF ( matches = sprints.$key.match('termin') ) -%]
 		<li class="list-group-item list-group-item-info" name="team" id="team" class="list-group-item">[% sprints.$key %]</li>
+		[% ELSE -%]
+		<li class="list-group-item list-group-item-success" name="team" id="team" class="list-group-item">[% sprints.$key %]</li>
 		[% END -%]
 	[% END -%]
 	</ul>

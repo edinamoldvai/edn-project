@@ -73,7 +73,7 @@ sub view_sprints :Local :Args(1){
 			order_by => { "-desc" => "end_date" },
 			result_class => "DBIx::Class::ResultClass::HashRefInflator",
 		})->all();
-	#warn Data::Dumper::Dumper(\@sprints);
+
 	$c->stash({
 		datapoints => \@sprints,
 		id => $id,
@@ -402,7 +402,7 @@ sub invoice :Local :Args(1) {
       		'+as'     => ['project_name','project_id','project_price','project_velocity'],
 			result_class => "DBIx::Class::ResultClass::HashRefInflator",
 		})->first();
-	warn Data::Dumper::Dumper($data);
+
 	$c->stash({
 		project_id => $data->{project_id},
 		data => $data,
@@ -412,31 +412,33 @@ sub invoice :Local :Args(1) {
 
 sub send_to_accounting :Local {
 	my ($self, $c) = @_;
-
+	warn Data::Dumper::Dumper($c->req->params);
 	my $to = $c->req->params->{email};
 	my $from = "m_edina_92\@yahoo.com";
 	my $subject = "Datele sprintului pentru ".$c->req->params->{project_name};
-
+	eval {
  	my $mailprog  = "/usr/sbin/sendmail -t -odb";
 
         open( MAIL, "|$mailprog" );
         print MAIL "From: ".$from." \n";
         print MAIL "To: ".$to." \n";
         print MAIL "Subject: $subject \n";
-        print MAIL "Content-Type: text/plain; charset='iso-8859-1';\n";
+        print MAIL "Content-Type: text/plain; charset='utf-8';\n";
         print MAIL "Content-Transfer-Encoding: 7bit\n\n";
         print MAIL $subject;
         print MAIL "\nClient: ".$c->req->params->{project_name}.
         		   "\nPerioada: ".$c->req->params->{start}." - ".$c->req->params->{end}.
-        		   "\nUnități: ".$c->req->params->{project_units}.
-        		   "\nUnități propuse: ".$c->req->params->{project_velocity}.
-        		   "\nPreț unitar: ".$c->req->params->{project_price}.
-        		   "\nValoare totală: ".($c->req->params->{project_price}+0 ) * ($c->req->params->{project_units}+0).
+        		   "\nUnitati: ".$c->req->params->{project_units}.
+        		   "\nUnitati propuse: ".$c->req->params->{project_velocity}.
+        		   "\nPret unitar: ".$c->req->params->{project_price}.
+        		   "\nValoare totala: ".($c->req->params->{project_price}+0 ) * ($c->req->params->{project_units}+0).
         		   "\nDeficit/Excedent: ".( ($c->req->params->{project_price}+0 ) * ($c->req->params->{project_units}+0) -
         		   						($c->req->params->{project_velocity}+0 ) * ($c->req->params->{project_price}+0))
         		   ;
         close( MAIL );
-
+        } or do {
+        	warn @$ if @$;
+        };
     $c->response->redirect($c->uri_for('view_sprints',$c->req->params->{project_id},
         	{mid => $c->set_status_msg("Email trimis.")}));	
 }

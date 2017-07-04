@@ -3,17 +3,17 @@
 <p class="text-primary">Ești aici: <b>Home - Adaugă proiect nou</b></p>
 	<form action ="[% c.uri_for('save_new_team') %]" method ="Post">
     <div class="container-fluid col-xs-6">
-    <label for="team_name">Numele proiectului</label>
+    <label for="team_name" >Numele proiectului</label>
     <input type="text" name="team_name" class="form-control input-sm" id="team_name" required><br>
-    <label for="team_velocity" class="text-left" data-toggle="tooltip" data-placement="right" title="Velocity measures how much functionality a team delivers in a sprint.">Velocitate propusă</label>
+    <label for="team_velocity" class="text-left">Velocitate propusă</label>
     <input type="number" min="0" name="team_velocity" class="form-control input-sm" id="team_velocity"><br>
-    <label for="team_price" class="text-left" data-toggle="tooltip" data-placement="right" title="Price per story point.">Preţ contract per story point</label>
+    <label for="team_price" class="text-left" data-toggle="tooltip" data-placement="right">Preţ contract per story point</label>
     <input type="number" min="0" name="team_price" class="form-control input-sm" id="team_price"><br>
-    <label for="team_iteration" class="text-left" data-toggle="tooltip" data-placement="right" title="During each sprint, a team creates a potentially shippable product increment, no matter how basic that product is. Most of teams work in one-week or two-week sprints.">Zile iteraţie</label>
+    <label for="team_iteration" class="text-left" >Zile iteraţie</label>
     <input type="number" min="0" name="team_iteration" class="form-control input-sm" id="team_iteration"><br>
-    <label for="timepicker1" class="text-left" data-toggle="tooltip" data-placement="right" title="The daily Scrum meeting is a short everyday meeting, ideally during start of the working day. Each team member who works towards the completion of a given sprint needs to participate. The daily Scrum meeting should ideally not last more than 15 minutes. Issues or concerns ought to be recorded by the Scrum Master and needs to be specifically handled after the meeting.">Stand up zilnic</label>
+    <label for="timepicker1" class="text-left">Stand up zilnic</label>
     <input id="timepicker1" type="text" class="form-control input-sm" name ="daily_meeting_time"><br>
-    <label class="text-left" data-toggle="tooltip" data-placement="right" title="Each sprint begins with a sprint planning meeting. For a one month or four-week sprint this meeting should last eight hours. For a two-week sprint, plan for about four hours. As a general rule of thumb, multiply the number of weeks in your sprint by two hours to get your total sprint planning meeting length.">Planificare</label><br>
+    <label class="text-left" >Planificare</label><br>
     	<select color="#000" id="planning_day" name="planning_day">
 		    <option style="color: #000" value="Monday">Luni</option>
 		    <option style="color: #000" value="Tuesday">Marţi</option>
@@ -22,7 +22,7 @@
 		    <option style="color: #000" selected="selected" value="Friday">Vineri</option>
 		</select><br>
     <input id="timepicker2" type="text" class="form-control input-sm" name="planning_time"><br>
-    <label class="text-left" data-toggle="tooltip" data-placement="right" title="The sprint retrospective is a meeting facilitated by the ScrumMaster at which the team discusses the just-concluded sprint and determines what could be changed that might make the next sprint more productive.">Sprint retrospectiv</label><br>
+    <label class="text-left" >Sprint retrospectiv</label><br>
     	<select color="#000" id="retrospective_day" name="retrospective_day">
 		    <option style="color: #000" value="Monday">Luni</option>
 		    <option style="color: #000" value="Tuesday">Marţi</option>
@@ -35,17 +35,18 @@
 <div class="container col-xs-6">
             <label for="team_notes">Note</label><br>
             <textarea rows="5" class="form-control input-sm" id="team_notes" name="team_notes"></textarea>
-                <br>
-        <div class="col-xs-4">
+            <br><br>
             <label for="skills">Aptitudini/competenţe necesare</label><br>
-            <input type="text" id="skills" name="skills" data-role="tagsinput"><br>
-            <label for="no_of_ba" class="text-left" data-toggle="tooltip" data-placement="right" title="How many business analysts do you want in the team?">Număr analişti afaceri</label>
+            <input type="text" id="skills" name="skills" class="form-control input-sm" data-role="tagsinput"><br><br>
+<!--         <div class="container col-xs-6">
+             -->
+            <label for="no_of_ba" class="text-left" >Număr analişti afaceri</label>
             <input type="number" min="0" name="no_of_ba" class="form-control input-sm" id="no_of_ba" required=" "><br>
-            <label for="no_of_dev" class="text-left" data-toggle="tooltip" data-placement="right" title="How many developers do you want in the team?">Număr dezvoltatori</label>
+            <label for="no_of_dev" class="text-left" >Număr dezvoltatori</label>
             <input type="number" min="0" name="no_of_dev" class="form-control input-sm" id="no_of_dev" required=""><br>
-            <label for="no_of_qa" class="text-left" data-toggle="tooltip" data-placement="right" title="How many QAs do yo want in the team?">Număr testeri</label>
+            <label for="no_of_qa" class="text-left">Număr testeri</label>
             <input type="number" min="0" name="no_of_qa" class="form-control input-sm" id="no_of_qa" required=""><br>
-        </div><br>
+<!--         </div><br> -->
     <br>
 </div>
         <br>
@@ -77,10 +78,4 @@
         minuteStep: 5
     });
 </script>
-<script>
-	$(document).ready(function(){
-	    $('[data-toggle="tooltip"]').tooltip({
-	    	'container':'body'
-	    });
-	});
-</script>
+

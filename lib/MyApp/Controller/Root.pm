@@ -1,4 +1,4 @@
-package MyApp::Controller::Root;
+ package MyApp::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use DateTime                   qw( );
@@ -78,11 +78,12 @@ sub index :Path :Args(0) {
         },
         {
             join => "sprint_team",
-            select => ['sprint_team.name', 'me.end_date', { max => 'me.end_date' } ],
-            as     => ['sprint_team_name', 'end_date', 'max_date'],
-            group_by => [ "project_id","end_date" ],
+            select => ['sprint_team.name', 'sprint_team.days_in_iteration', 'me.end_date', { max => 'me.end_date' } ],
+            as     => ['sprint_team_name', 'days_in_iteration', 'end_date', 'max_date'],
+            group_by => [ "project_id","end_date", "days_in_iteration" ],
             result_class => "DBIx::Class::ResultClass::HashRefInflator",
         })->all();
+    warn Data::Dumper::Dumper(\@sprints);
 
     my $format = DateTime::Format::Strptime->new(
         pattern   => '%Y-%m-%d',
@@ -91,12 +92,21 @@ sub index :Path :Args(0) {
     );
     my $ref  = DateTime->today( time_zone => 'local' );
 
-    my %mapped_sprints = map { $_->{sprint_team_name} => $format->parse_datetime($_->{max_date}) >= $ref ? 
-        $_->{sprint_team_name}." - ".
-        $ref->delta_days($format->parse_datetime($_->{max_date}))->in_units('days').
-        " zile în sprintul curent" : $_->{sprint_team_name}." - Sprintul s-a terminat",
-        } @sprints;
+    foreach my $team (@sprints){
+        my $last_day = $format->parse_datetime($team->{max_date});
+        warn Data::Dumper::Dumper($team->{days_in_iteration});
 
+        my $next = $last_day->add(days => $team->{days_in_iteration});
+        $team->{zile_ramase} = $last_day->delta_days($ref)->in_units('days');
+
+      #  $team->{iteration_ends} = 
+    }
+
+    my %mapped_sprints = map { $_->{sprint_team_name} => $format->parse_datetime($_->{max_date}) >= $ref ? 
+        $_->{sprint_team_name}." - sprintul a fost deja introdus" : $_->{sprint_team_name}." - Sprintul curent se termină în " .
+        $_->{zile_ramase} . " zile";
+        } @sprints;
+        warn Data::Dumper::Dumper(\%mapped_sprints);
     $c->stash({
         superu => $c->user->display_name,
         sprints => \%mapped_sprints,

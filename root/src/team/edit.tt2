@@ -36,9 +36,10 @@
 <div class="container col-xs-6">
 	<label for="team_notes">Note</label><br>
 	<textarea rows="5" class="form-control input-sm" id="team_notes" name="team_notes">[% team_notes %]</textarea>
+    <br>
+    <label for="skills">Aptitudini/competenţe necesare</label><br>
+    <input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]"><br><br>
     <div class="col-xs-4">
-            <label for="skills">Aptitudini/competenţe necesare</label><br>
-            <input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]"><br>
             <label for="no_of_ba" class="text-left" data-toggle="tooltip" data-placement="right" title="How many business analysts do you want in the team?">Număr analişti afaceri</label>
             <input type="number" min="0" name="no_of_ba" class="form-control input-sm" id="no_of_ba" value="[% no_of_ba %]"><br>
             <label for="no_of_dev" class="text-left" data-toggle="tooltip" data-placement="right" title="How many developers do you want in the team?">Număr dezvoltatori</label>

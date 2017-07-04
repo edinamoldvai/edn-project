@@ -34,11 +34,12 @@
 			<a href="[% c.uri_for(c.controller.action_for('delete_project'), id) %]">Delete</a>
 		<br>
 		<label for="skills">Abilităţi</label><br>
-		<select class="selectpicker" name="skills" id="skills" multiple>
+		<input type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]">
+<!-- 		<select class="selectpicker" name="skills" id="skills" multiple>
 			[% FOREACH key IN skills.keys.sort -%]
 				<option>[% key %]</option>
 			[% END -%]
-		</select>
+		</select> -->
 <!-- 		<input class="tagsinput-typeahead" type="text" id="skills" name="skills" data-role="tagsinput" value="[% skills %]"/> -->
 	    <br>
 	    <br>
@@ -76,55 +77,5 @@
 $( "#department" ).val( "[% department %]" );
 $( "#project" ).val( "[% project %]" );
 $( "#roles" ).val( "[% role %]" );
-// $( "#skills" ).val( "[% skills_emp %]" );
+
 </script>
-<script type="text/javascript">
-$(function() {
-    // $('#skills').multiselect({
-    //     includeSelectAllOption: true
-    // });
-
-    $('#skills').multiselect({
-	    selectAllValue: 'multiselect-all',
-	    enableCaseInsensitiveFiltering: true,
-	    enableFiltering: true,
-	    maxHeight: '300',
-	    buttonWidth: '235',
-	    onChange: function(element, checked) {
-	        var brands = $('#skills option:selected');
-	        var selected = "[% skills_emp %]";
-	        $(brands).each(function(index, brand){
-	            selected.push([$(this).val()]);
-	        });
-	    }
-	});
-    
-});
-</script>
-<!-- <script type="text/javascript">
-var skill = [];
-[% FOREACH key IN skills.keys.sort -%]
-	skill.push({ name: [% skills.$key %] });
-[% END -%]
-// $('.tagsinput-typeahead').tagsinput({
-//   typeahead: {
-//     // source: skill.map(function(item) { return item.name }),
-//     source: ['Cluj','Marghita','Oradea'],
-//     afterSelect: function() {
-//     	this.$element[0].value = '';
-//     },
-//   }
-// }) 
-
-$('.tagsinput-typeahead').tagsinput({
-      typeahead: {
-        // source: skill.map(function(item) { return item.name }),
-        source: "[% skills %]",
-        afterSelect: function() {
-	    	this.$element[0].value = '';
-	    },
-      }
-    });
-alert(skill);
-
-</script> -->

@@ -5,6 +5,7 @@ use namespace::autoclean;
 use DateTime; 
 use Email::Valid;
 use Switch;
+use utf8;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -95,12 +96,12 @@ sub save_new_employee :Local :OnError('add') {
 
     my $params = $c->req->params;
 
-    my @words = @{$params->{skills}};
-    warn Data::Dumper::Dumper($params->{skills});
+    my @words = split /,/, $params->{skills};
+
     my @found_skills;
     my $new_skill;
    	foreach my $skill (@words) {
-        warn Data::Dumper::Dumper($skill);
+
         $skill =~ s/^\s+|\s+$//g;
     	if ($reverse_skills{$skill}) {
     		push @found_skills, $reverse_skills{$skill};
@@ -130,6 +131,7 @@ sub save_new_employee :Local :OnError('add') {
     	my $new_employee = $c->model('DB::Employee')->create({
 	    	first_name => $params->{first_name},
 	    	last_name => $params->{last_name},
+            email => $params->{email},
 	    	department => $reverse_departments{$params->{department}},
 	    	project_id => $reverse_projects{$params->{project}},
             hire_date => $date,
@@ -162,11 +164,10 @@ sub edit :Local {
 
 	my $employee = $c->model('DB::Employee')->find($id);
     my %skills_for_employee = $self->get_skill($c, $id);
-    my %reverse_skills_for_employee = reverse %skills_for_employee;
-    warn Data::Dumper::Dumper(\%reverse_skills_for_employee);
-    warn Data::Dumper::Dumper(\%reverse_skills);
-    # my @array = values %skills_for_employee;
-    # warn Data::Dumper::Dumper(@array);
+
+
+    my $scal = join(", ", map { "$skills_for_employee{$_}" } keys %skills_for_employee);
+
     my $data = $self->show_history($c, $id);
 	if ($employee) {
 		
@@ -178,8 +179,7 @@ sub edit :Local {
 			department => $departments{$employee->department->id},
 			project => $projects{$employee->project_id},
             role => $roles{$employee->role_id},
-			skills => \%reverse_skills,
-            skills_emp => \%reverse_skills_for_employee,
+			skills => $scal,
             departments => \%departments,
             projects => \%projects,
             roles => \%roles,
@@ -200,7 +200,7 @@ sub update :Local :OnError('edit') {
 
     my $employee = $c->model('DB::Employee')->find($params->{id});
 
-    my @words = @{$params->{skills}};
+    my @words = split /,/, $params->{skills};
     my @found_skills;
     foreach my $skill (@words) {
         $skill =~ s/^\s+|\s+$//g;
@@ -248,7 +248,7 @@ sub update :Local :OnError('edit') {
             };
 
         $c->response->redirect($c->uri_for('list',
-            {mid => $c->set_status_msg("The employee has been updated.")}));
+            {mid => $c->set_status_msg("Angajatul a fost modificat.")}));
 
     } or do {
     	$c->response->redirect($c->uri_for('list',
@@ -266,10 +266,16 @@ sub delete :Local :Args(1) {
 
     if ($employee_to_delete) {
         eval {
-            $employee_to_delete->delete;
+            
             my $relations = $c->model('DB::EmployeeSkill')->search({
                 id_employee => $id,
                 })->delete;
+            $relations = $c->model('DB::EmployeePerformance')->search({
+                employee_id => $id,
+                })->delete;
+            $employee_to_delete->delete;
+            $c->response->redirect($c->uri_for('list',
+                {mid => $c->set_status_msg("Angajat șters.")}));
         } or do {
             $c->response->redirect($c->uri_for('list',
                 {mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
@@ -278,9 +284,6 @@ sub delete :Local :Args(1) {
         $c->response->redirect($c->uri_for('list',
             {mid => $c->set_error_msg("Nu există angajat cu acest id.")}));
     }
-
-    $c->response->redirect($c->uri_for('list',
-        {mid => $c->set_status_msg("Angajat șters.")}));
 
 }
 

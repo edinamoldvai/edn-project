@@ -6,7 +6,7 @@ use Email::Sender::Simple qw(sendmail);
 use Email::Simple;
 use Email::Simple::Creator;
 use Switch;
-
+use utf8;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -43,17 +43,16 @@ sub auto :Path :Args(0) {
 
 }
 
-sub add_new_team :Local :Args(0) {
+sub add_new_team :Local {
     my ( $self, $c ) = @_;
 
     $c->stash(template => 'team/add_new_team.tt2');
 }
 
-sub save_new_team :Local :Args(0) {
+sub save_new_team :Local :OnError('add_new_team') {
     my ( $self, $c ) = @_;
-
     my $params = $c->req->params();
-
+    warn Data::Dumper::Dumper($params);
     my $team_name_already_exists = $c->model('DB::Team')->search({
     		name => $params->{name}
     		})->first();
@@ -73,7 +72,9 @@ sub save_new_team :Local :Args(0) {
 	    };    
 
 	    my $planning_time = $params->{planning_time}.",".$params->{planning_day};
+	    warn Data::Dumper::Dumper($planning_time);
 	    my $retrospective_time = $params->{retrospective_time}.",".$params->{retrospective_day};
+	    warn Data::Dumper::Dumper($retrospective_time);
 
 	    my @words = split /,/, $params->{skills};
 
@@ -127,7 +128,6 @@ sub save_new_team :Local :Args(0) {
             		{mid => $c->set_status_msg("Echipa salvată.")}));
 
 	        } or do {
-	        	warn Data::Dumper::Dumper(@$);
 	    		$c->response->redirect($c->uri_for('view_teams_for_this_user',
             		{mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));	
 	    	};
@@ -135,6 +135,8 @@ sub save_new_team :Local :Args(0) {
 	    	
 	}
 
+	$c->response->redirect($c->uri_for('view_teams_for_this_user',
+            {mid => $c->set_status_msg("Echipa a fost adăugată.")}));
 }
 
 sub delete :Local :Args(1) {
@@ -144,10 +146,19 @@ sub delete :Local :Args(1) {
 
     if ($team_to_delete) {
         eval {
-            $team_to_delete->delete;
             my $relations = $c->model('DB::ProjectSkill')->search({
                 id_project => $id,
                 })->delete_all();
+            $relations = $c->model('DB::EmployeePerformance')->search({
+                project_id => $id,
+                })->delete_all();
+            $relations = $c->model('DB::Sprint')->search({
+                project_id => $id,
+                })->delete_all();
+            $team_to_delete->delete;
+
+    		$c->response->redirect($c->uri_for('view_teams_for_this_user',
+        		{mid => $c->set_status_msg("Proiect șters.")}));
         } or do {
             $c->response->redirect($c->uri_for('view_teams_for_this_user',
                 {mid => $c->set_error_msg("Eroare! Încercați mai târziu.")}));
@@ -157,8 +168,6 @@ sub delete :Local :Args(1) {
             {mid => $c->set_error_msg("Nu există proiect cu acest id.")}));
     }
 
-    $c->response->redirect($c->uri_for('view_teams_for_this_user',
-        {mid => $c->set_status_msg("Proiect șters.")}));
 }
 
 sub edit :Local {
@@ -193,7 +202,6 @@ sub edit :Local {
 			no_of_dev => $team->get_column("no_of_dev"),
 			no_of_qa => $team->get_column("no_of_qa"),
 			});
-		warn Data::Dumper::Dumper($c->stash);
 	} else {
 		$c->response->redirect($c->uri_for('view_teams_for_this_user',
             {mid => $c->set_error_msg("Acest proiect nu există.")}));	
@@ -277,7 +285,6 @@ sub update :Local {
 	               }
 	    	}
 	    }
-
 	    $current_item->update({
 	    	name => $params->{team_name},
 	    	target_velocity => $params->{team_velocity},
@@ -294,7 +301,7 @@ sub update :Local {
 	    foreach my $skill (@found_skills) {
                 my $relation = $c->model('DB::ProjectSkill')->update_or_create({
                     id_project => $current_item->id,
-                    id_skill => $skill
+                    id_skill => $reverse_skills{$skill}
                     });
             };
 
@@ -430,7 +437,7 @@ sub add_members :Local {
     my $project = $c->model('DB::Team')->find($id);
     my %skills_for_team = $self->get_skill($c, $id);
     my $scal = join(", ", map { "$skills_for_team{$_}" } keys %skills_for_team);
-    warn Data::Dumper::Dumper($scal);
+
     # my @covered_skills = get_covered_skills($self, $c, $id);
 	$c->stash({
 		no_of_ba => $project->no_of_ba - $project->ba_filled,
@@ -439,8 +446,8 @@ sub add_members :Local {
 		id => $id,
 		employees => \%pretty_employees_skills,
 		bas => %roles->{3},
-		devs => %roles->{1},
-		qas => %roles->{2},
+		devs => %roles->{2},
+		qas => %roles->{1},
 		template => 'team/add_members.tt2',
 		skills_to_cover => $scal,
 		});
@@ -453,19 +460,18 @@ sub add_to_team :Local {
 	my $employee = $c->model('DB::Employee')->find($id_employee);
 	my $project = $c->model('DB::Team')->find($id_project);
 
-	warn Data::Dumper::Dumper($employee);
 
 	my $role = $c->model('DB::Role')->find($employee->role_id)->get_column("role");
-	warn Data::Dumper::Dumper($role);
+
 	if($employee && $project) {
 		eval {
 			$employee->project_id($id_project);
 			$employee->update;
 
 			switch ($role) {
-				case "Developer" { $project->increase_dev_filled(1)}
-				case "Business Analyst" { $project->increase_ba_filled(1)}
-				case "QA" { $project->increase_qa_filled(1)}
+				case "Dezvoltator" { $project->increase_dev_filled(1)}
+				case "Analist afaceri" { $project->increase_ba_filled(1)}
+				case "Tester" { $project->increase_qa_filled(1)}
 			}
 
 			$project->update;
@@ -481,8 +487,6 @@ sub add_to_team :Local {
 	}
 
 	my $mail = send_mail($self,$c,$employee,$project);
-
-	warn Data::Dumper::Dumper($mail);
 
 	return $c->response->redirect($c->uri_for('add_members', $id_project,
         {mid => $c->set_status_msg("Proiect salvat.")})) if $mail;

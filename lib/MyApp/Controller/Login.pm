@@ -12,6 +12,7 @@ use Email::Valid;
 use Crypt::PBKDF2;
 use Data::Password::Check;
 use utf8;
+ use Digest::MD5 qw(md5 md5_hex md5_base64);
 BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
@@ -55,12 +56,25 @@ sub login :Path('/login_user') :Args(0) {
     # Get the username and password from form
     my $username = $c->request->params->{email};
     my $password = $c->request->params->{password};
+    # create hashed password
+    # my $pbkdf2 = Crypt::PBKDF2->new(
+    #     hash_class => 'HMACSHA2',
+    #     hash_args => {
+    #         sha_size => 512,
+    #     },
+    #     iterations => 10000,
+    #     salt_len => 10,
+    # );
+    # my $hashed_password = $pbkdf2->generate($password);
 
+    my $hashed_password = md5_hex($password);
+    warn Data::Dumper::Dumper($password);
+    warn Data::Dumper::Dumper($hashed_password);
     # If the username and password values were found in form
     if ($username && $password) {
         # Attempt to log the user in
         if ($c->authenticate({ email => $username,
-                               password => $password  } )) {
+                               password => $hashed_password  } )) {
             # If successful, then let them use the application
             $c->response->redirect($c->uri_for(
                 $c->controller('Root')->action_for('index')));
@@ -139,16 +153,19 @@ sub signup :Path('/signup') :Args(0) {
         return;
     }
 
-    # create hashed password
-    my $pbkdf2 = Crypt::PBKDF2->new(
-        hash_class => 'HMACSHA2',
-        hash_args => {
-            sha_size => 512,
-        },
-        iterations => 10000,
-        salt_len => 10,
-    );
-    my $hashed_password = $pbkdf2->generate($params->{password});
+    # # create hashed password
+    # my $pbkdf2 = Crypt::PBKDF2->new(
+    #     hash_class => 'HMACSHA2',
+    #     hash_args => {
+    #         sha_size => 512,
+    #     },
+    #     iterations => 10000,
+    #     salt_len => 10,
+    # );
+    # my $hashed_password = $pbkdf2->generate($params->{password});
+
+
+    my $hashed_password = md5_hex($params->{password});
 
     # verify if uswer already exists
     my $user_already_exists = $c->model("DB::User")->search({

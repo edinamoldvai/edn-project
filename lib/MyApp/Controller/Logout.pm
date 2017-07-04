@@ -1,6 +1,7 @@
 package MyApp::Controller::Logout;
 use Moose;
 use namespace::autoclean;
+use utf8;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
